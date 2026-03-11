@@ -24,34 +24,52 @@ export class HUD {
     }
 
     setupEvents() {
-        this.menuBtn.addEventListener('click', () => {
-            this.game.questSystem.toggle();
-        });
+        if (this.menuBtn) {
+            this.menuBtn.addEventListener('click', () => {
+                if (this.game.questSystem) {
+                    this.game.questSystem.toggle();
+                }
+            });
+        }
 
-        this.questClose.addEventListener('click', () => {
-            this.game.questSystem.hide();
-        });
+        if (this.questClose) {
+            this.questClose.addEventListener('click', () => {
+                if (this.game.questSystem) {
+                    this.game.questSystem.hide();
+                }
+            });
+        }
 
-        this.musicBtn.addEventListener('click', () => {
-            this.musicEnabled = !this.musicEnabled;
-            this.musicBtn.style.opacity = this.musicEnabled ? '1' : '0.5';
-        });
+        if (this.musicBtn) {
+            this.musicBtn.addEventListener('click', () => {
+                this.musicEnabled = !this.musicEnabled;
+                this.musicBtn.style.opacity = this.musicEnabled ? '1' : '0.5';
+            });
+        }
 
-        this.outfitBtn.addEventListener('click', () => {
-            this.outfitPanel.classList.toggle('active');
-        });
+        if (this.outfitBtn && this.outfitPanel) {
+            this.outfitBtn.addEventListener('click', () => {
+                this.outfitPanel.classList.toggle('active');
+            });
+        }
 
-        this.outfitClose.addEventListener('click', () => {
-            this.outfitPanel.classList.remove('active');
-        });
+        if (this.outfitClose && this.outfitPanel) {
+            this.outfitClose.addEventListener('click', () => {
+                this.outfitPanel.classList.remove('active');
+            });
+        }
 
-        this.petBtn.addEventListener('click', () => {
-            // Show a small notification
-            this.showToast('🐾 Companions coming soon!');
-        });
+        if (this.petBtn) {
+            this.petBtn.addEventListener('click', () => {
+                // Show a small notification
+                this.showToast('🐾 Companions coming soon!');
+            });
+        }
     }
 
     createOutfits() {
+        if (!this.outfitGrid) return;
+        
         const outfits = [
             { emoji: '👕', name: 'Default', colors: { body: '#5BA3A3', skirt: '#B04040' } },
             { emoji: '🌸', name: 'Sakura', colors: { body: '#E88080', skirt: '#F8B0B0' } },

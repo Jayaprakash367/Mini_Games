@@ -55,6 +55,8 @@ export class QuestSystem {
     }
 
     renderQuests() {
+        if (!this.listEl) return;
+        
         this.listEl.innerHTML = '';
         this.quests.forEach(quest => {
             const item = document.createElement('div');
@@ -96,15 +98,21 @@ export class QuestSystem {
     }
 
     show() {
-        this.panel.classList.add('active');
-        this.renderQuests();
+        if (this.panel) {
+            this.panel.classList.add('active');
+            this.renderQuests();
+        }
     }
 
     hide() {
-        this.panel.classList.remove('active');
+        if (this.panel) {
+            this.panel.classList.remove('active');
+        }
     }
 
     toggle() {
+        if (!this.panel) return;
+        
         if (this.panel.classList.contains('active')) {
             this.hide();
         } else {

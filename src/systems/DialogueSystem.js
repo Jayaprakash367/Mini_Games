@@ -21,13 +21,19 @@ export class DialogueSystem {
         this.onComplete = null;
         this.typeSpeed = 30;
 
-        this.nextBtn.addEventListener('click', () => this.advance());
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', () => this.advance());
+        }
         // Also allow clicking the dialogue box itself to advance
-        this.box.addEventListener('click', (e) => {
-            if (e.target !== this.nextBtn && !this.nextBtn.contains(e.target)) {
-                this.advance();
-            }
-        });
+        if (this.box) {
+            this.box.addEventListener('click', (e) => {
+                if (this.nextBtn && e.target !== this.nextBtn && !this.nextBtn.contains(e.target)) {
+                    this.advance();
+                } else if (!this.nextBtn) {
+                    this.advance();
+                }
+            });
+        }
     }
 
     start(dialogues, onComplete) {
@@ -36,8 +42,10 @@ export class DialogueSystem {
         this.isActive = true;
         this.onComplete = onComplete || null;
 
-        this.box.classList.remove('hidden');
-        this.box.classList.add('active');
+        if (this.box) {
+            this.box.classList.remove('hidden');
+            this.box.classList.add('active');
+        }
 
         this.showCurrentDialogue();
     }
@@ -49,7 +57,7 @@ export class DialogueSystem {
         }
 
         const dialogue = this.dialogues[this.currentIndex];
-        this.nameEl.textContent = dialogue.name;
+        if (this.nameEl) this.nameEl.textContent = dialogue.name;
         this.currentText = dialogue.text;
         this.displayedText = '';
         this.charIndex = 0;
@@ -64,7 +72,7 @@ export class DialogueSystem {
         this.typewriterTimer = setInterval(() => {
             if (this.charIndex < this.currentText.length) {
                 this.displayedText += this.currentText[this.charIndex];
-                this.textEl.textContent = this.displayedText;
+                if (this.textEl) this.textEl.textContent = this.displayedText;
                 this.charIndex++;
             } else {
                 clearInterval(this.typewriterTimer);
@@ -77,7 +85,7 @@ export class DialogueSystem {
         if (this.isTyping) {
             // Skip to end of current text
             clearInterval(this.typewriterTimer);
-            this.textEl.textContent = this.currentText;
+            if (this.textEl) this.textEl.textContent = this.currentText;
             this.isTyping = false;
             return;
         }
@@ -92,14 +100,14 @@ export class DialogueSystem {
 
     close() {
         this.isActive = false;
-        this.box.classList.remove('active');
+        if (this.box) this.box.classList.remove('active');
 
         if (this.typewriterTimer) {
             clearInterval(this.typewriterTimer);
         }
 
         setTimeout(() => {
-            this.box.classList.add('hidden');
+            if (this.box) this.box.classList.add('hidden');
             if (this.onComplete) {
                 this.onComplete();
                 this.onComplete = null;

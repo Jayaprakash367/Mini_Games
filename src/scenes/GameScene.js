@@ -1,11 +1,15 @@
 // =============================================
 // GAME SCENE — Main Gameplay
 // Coastal city environment with point-and-click exploration
+// Supports keyboard (WASD/Arrow) and mouse controls
 // =============================================
 
 import { Player } from '../entities/Player.js';
 import { NPC } from '../entities/NPC.js';
 import { Environment } from '../utils/Environment.js';
+import { inputSystem } from '../systems/InputSystem.js';
+import { petSystem } from '../systems/PetSystem.js';
+import { audioSystem } from '../systems/AudioSystem.js';
 
 export class GameScene {
     constructor(game) {
@@ -20,6 +24,29 @@ export class GameScene {
         this.transitioning = false;
         this.transitionAlpha = 0;
         this.nextArea = -1;
+        
+        // Keyboard movement
+        this.keyboardMoveSpeed = 200; // pixels per second
+        this.sprintMultiplier = 1.8;
+        this.lastPlayerX = this.player.x;
+        this.lastPlayerY = this.player.y;
+        this.nearestNPC = null;
+        this.lastStepTime = 0;
+        this.stepSoundInterval = 300; // ms between step sounds
+        
+        // Item pickups in the world
+        this.worldItems = this.createWorldItems();
+        
+        // Particle effects
+        this.particles = [];
+    }
+    
+    createWorldItems() {
+        return [
+            { id: 'seashell', name: 'Pretty Seashell', area: 0, x: 500, y: 400, collected: false, icon: '🐚' },
+            { id: 'old_coin', name: 'Old Coin', area: 1, x: 600, y: 385, collected: false, icon: '🪙' },
+            { id: 'feather', name: 'Blue Feather', area: 2, x: 350, y: 375, collected: false, icon: '🪶' }
+        ];
     }
 
     createAreas() {
@@ -139,13 +166,161 @@ export class GameScene {
     }
 
     exit() { }
+    
+    handleInteraction() {
+        const area = this.areas[this.currentArea];
+        
+        // Find nearest NPC
+        let nearestNPC = null;
+        let nearestDist = 120; // Interaction range
+        
+        area.npcs.forEach(npc => {
+            const dist = Math.abs(this.player.x - npc.x);
+            if (dist < nearestDist) {
+                nearestDist = dist;
+                nearestNPC = npc;
+            }
+        });
+        
+        if (nearestNPC && !this.game.dialogueSystem.isActive) {
+            this.player.facingRight = this.player.x < nearestNPC.x;
+            
+            // Track NPC interaction
+            if (this.game.trackNPCInteraction) {
+                this.game.trackNPCInteraction();
+            }
+            
+            this.game.dialogueSystem.start(
+                nearestNPC.dialogues.map(text => ({ name: nearestNPC.name, text })),
+                () => {
+                    if (nearestNPC.quest && !this.game.questSystem.isCompleted(nearestNPC.quest.id)) {
+                        this.game.questSystem.addProgress(nearestNPC.quest.id);
+                    }
+                    if (this.game.trackDialogueComplete) {
+                        this.game.trackDialogueComplete();
+                    }
+                }
+            );
+            
+            audioSystem.play('interact');
+        }
+    }
+    
+    checkItemPickup() {
+        const area = this.currentArea;
+        const items = this.worldItems.filter(item => item.area === area && !item.collected);
+        
+        items.forEach(item => {
+            const dist = Math.sqrt(
+                Math.pow(this.player.x - item.x, 2) + 
+                Math.pow(this.player.y - item.y, 2)
+            );
+            
+            if (dist < 50) {
+                item.collected = true;
+                
+                // Add to inventory
+                if (this.game.inventorySystem) {
+                    this.game.inventorySystem.addItem({
+                        id: item.id,
+                        name: item.name,
+                        icon: item.icon,
+                        type: 'collectible'
+                    });
+                }
+                
+                // Create pickup particle effect
+                this.createPickupEffect(item.x, item.y);
+                
+                // Track collection
+                if (this.game.trackItemCollected) {
+                    this.game.trackItemCollected();
+                }
+            }
+        });
+    }
+    
+    createPickupEffect(x, y) {
+        for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI * 2 / 8) * i;
+            this.particles.push({
+                x, y,
+                vx: Math.cos(angle) * 50,
+                vy: Math.sin(angle) * 50 - 30,
+                life: 1.0,
+                color: '#FFD700'
+            });
+        }
+    }
+    
+    updateParticles(dt) {
+        this.particles = this.particles.filter(p => {
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.vy += 100 * dt; // Gravity
+            p.life -= dt * 2;
+            return p.life > 0;
+        });
+    }
 
     update(dt) {
         this.time += dt;
         const area = this.areas[this.currentArea];
+        
+        // Update particles
+        this.updateParticles(dt);
 
         // Update player
         if (!this.game.dialogueSystem.isActive && !this.transitioning) {
+            // Keyboard movement
+            if (inputSystem.movement.x !== 0 || inputSystem.movement.y !== 0) {
+                const isSprinting = inputSystem.isActionHeld && inputSystem.isActionHeld('sprint');
+                const speed = this.keyboardMoveSpeed * (isSprinting ? this.sprintMultiplier : 1);
+                
+                const newX = this.player.x + inputSystem.movement.x * speed * dt;
+                const newY = this.player.y + inputSystem.movement.y * speed * dt;
+                
+                // Clamp to bounds
+                this.player.x = Math.max(30, Math.min(920, newX));
+                this.player.y = Math.max(350, Math.min(430, newY));
+                
+                // Update facing direction
+                if (inputSystem.movement.x !== 0) {
+                    this.player.facingRight = inputSystem.movement.x > 0;
+                }
+                
+                // Set walking state
+                this.player.isWalking = true;
+                
+                // Track steps
+                const distWalked = Math.sqrt(
+                    Math.pow(this.player.x - this.lastPlayerX, 2) +
+                    Math.pow(this.player.y - this.lastPlayerY, 2)
+                );
+                
+                if (distWalked > 5) {
+                    this.lastPlayerX = this.player.x;
+                    this.lastPlayerY = this.player.y;
+                    
+                    if (this.game.trackStep) {
+                        this.game.trackStep();
+                    }
+                    
+                    // Play footstep sound
+                    const now = performance.now();
+                    if (now - this.lastStepTime > this.stepSoundInterval / (isSprinting ? 1.5 : 1)) {
+                        audioSystem.play('footstep');
+                        this.lastStepTime = now;
+                    }
+                }
+                
+                // Check for exit zones
+                this.checkExitZones(area);
+            } else {
+                this.player.isWalking = false;
+            }
+            
+            // Mouse/click movement
             if (this.game.mouse.clicked) {
                 const clickX = this.game.mouse.clickX;
                 const clickY = this.game.mouse.clickY;
@@ -158,11 +333,20 @@ export class GameScene {
                         // Walk to NPC then talk
                         this.player.walkTo(npc.x - 50, npc.y, () => {
                             this.player.facingRight = this.player.x < npc.x;
+                            
+                            // Track NPC interaction
+                            if (this.game.trackNPCInteraction) {
+                                this.game.trackNPCInteraction();
+                            }
+                            
                             this.game.dialogueSystem.start(
                                 npc.dialogues.map(text => ({ name: npc.name, text })),
                                 () => {
                                     if (npc.quest && !this.game.questSystem.isCompleted(npc.quest.id)) {
                                         this.game.questSystem.addProgress(npc.quest.id);
+                                    }
+                                    if (this.game.trackDialogueComplete) {
+                                        this.game.trackDialogueComplete();
                                     }
                                 }
                             );
@@ -181,12 +365,29 @@ export class GameScene {
                         }
                     });
                 }
+                
+                // Check world item clicks
+                if (!npcClicked) {
+                    const items = this.worldItems.filter(item => item.area === this.currentArea && !item.collected);
+                    items.forEach(item => {
+                        const dist = Math.sqrt(Math.pow(clickX - item.x, 2) + Math.pow(clickY - item.y, 2));
+                        if (dist < 40) {
+                            this.player.walkTo(item.x, item.y, () => {
+                                this.checkItemPickup();
+                            });
+                            npcClicked = true;
+                        }
+                    });
+                }
 
                 // Walk to clicked position
                 if (!npcClicked && clickY > 280 && clickY < 480) {
                     this.player.walkTo(clickX, Math.max(350, Math.min(430, clickY)));
                 }
             }
+            
+            // Continuous item pickup check (for keyboard movement)
+            this.checkItemPickup();
         }
 
         this.player.update(dt);
@@ -202,12 +403,20 @@ export class GameScene {
         if (this.transitioning) {
             this.transitionAlpha += dt * 3;
             if (this.transitionAlpha >= 1 && this.nextArea >= 0) {
+                const prevArea = this.currentArea;
                 this.currentArea = this.nextArea;
                 this.nextArea = -1;
-                const area2 = this.areas[this.currentArea];
+                
+                // Track area visit
+                const newAreaData = this.areas[this.currentArea];
+                if (this.game.trackAreaVisit) {
+                    this.game.trackAreaVisit(newAreaData.name);
+                }
+                
                 // Position player at entry
+                const area2 = this.areas[this.currentArea];
                 if (area2.exits.length > 0) {
-                    const entryExit = area2.exits.find(e => e.to === (this.currentArea > 0 ? this.currentArea - 1 : 1));
+                    const entryExit = area2.exits.find(e => e.to === prevArea);
                     if (entryExit) {
                         this.player.x = entryExit.x + (entryExit.direction === 'left' ? 80 : -80);
                     }
@@ -218,6 +427,16 @@ export class GameScene {
                 this.transitionAlpha = 0;
             }
         }
+    }
+    
+    checkExitZones(area) {
+        area.exits.forEach(exit => {
+            if (exit.direction === 'right' && this.player.x > exit.x - 30) {
+                this.transitionToArea(exit.to);
+            } else if (exit.direction === 'left' && this.player.x < exit.x + 30) {
+                this.transitionToArea(exit.to);
+            }
+        });
     }
 
     transitionToArea(areaIndex) {
@@ -245,6 +464,9 @@ export class GameScene {
         area.exits.forEach(exit => {
             this.drawExitIndicator(ctx, exit, h);
         });
+        
+        // Draw world items
+        this.drawWorldItems(ctx);
 
         // Draw NPCs (behind player if lower y)
         const entities = [...area.npcs, this.player];
@@ -257,9 +479,15 @@ export class GameScene {
                 npc.drawInteractionMarker(ctx, this.time);
             }
         });
+        
+        // Draw particles
+        this.drawParticles(ctx);
 
         // Draw area name
         this.drawAreaName(ctx, w, area.name);
+        
+        // Draw control hints
+        this.drawControlHints(ctx, w, h);
 
         // Draw cel-shading post-processing effect (vignette)
         this.drawVignette(ctx, w, h);
@@ -272,6 +500,71 @@ export class GameScene {
             ctx.fillStyle = `rgba(26, 26, 46, ${alpha})`;
             ctx.fillRect(0, 0, w, h);
         }
+    }
+    
+    drawWorldItems(ctx) {
+        const items = this.worldItems.filter(item => item.area === this.currentArea && !item.collected);
+        
+        items.forEach(item => {
+            const bob = Math.sin(this.time * 3 + item.x) * 3;
+            const glow = Math.sin(this.time * 4) * 0.3 + 0.7;
+            
+            // Glow effect
+            ctx.save();
+            ctx.globalAlpha = glow * 0.5;
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(item.x, item.y + bob, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Item shadow
+            ctx.globalAlpha = 0.3;
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.ellipse(item.x, item.y + 15, 12, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Item icon
+            ctx.globalAlpha = 1;
+            ctx.font = '24px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(item.icon, item.x, item.y + bob);
+            
+            ctx.restore();
+        });
+    }
+    
+    drawParticles(ctx) {
+        this.particles.forEach(p => {
+            ctx.save();
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 4 * p.life, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        });
+    }
+    
+    drawControlHints(ctx, w, h) {
+        ctx.save();
+        ctx.font = '600 11px Inter, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillStyle = 'rgba(248, 248, 240, 0.4)';
+        
+        const hints = [
+            'WASD / Arrows: Move',
+            'E / Space: Interact',
+            'I: Inventory',
+            'ESC: Pause'
+        ];
+        
+        hints.forEach((hint, i) => {
+            ctx.fillText(hint, w - 15, h - 60 + (i * 14));
+        });
+        
+        ctx.restore();
     }
 
     drawExitIndicator(ctx, exit, h) {
