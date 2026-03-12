@@ -1,164 +1,146 @@
-// =============================================
-// HUD — Heads Up Display
-// Menu, Music, Outfit, Companion buttons
-// =============================================
-
 export class HUD {
-    constructor(game) {
-        this.game = game;
-        this.hudEl = document.getElementById('hud');
-        this.menuBtn = document.getElementById('menu-btn');
-        this.musicBtn = document.getElementById('music-btn');
-        this.outfitBtn = document.getElementById('outfit-btn');
-        this.petBtn = document.getElementById('pet-btn');
-        this.questClose = document.getElementById('quest-close');
-        this.outfitPanel = document.getElementById('outfit-panel');
-        this.outfitClose = document.getElementById('outfit-close');
-        this.outfitGrid = document.getElementById('outfit-grid');
+    constructor(inventorySystem, questSystem) {
+        this.inventory = inventorySystem;
+        this.quests = questSystem;
 
-        this.musicEnabled = true;
-        this.selectedOutfit = 0;
+        this.container = document.getElementById('hud');
+        this.createElements();
 
-        this.setupEvents();
-        this.createOutfits();
+        this.inventory.onChange(() => this.updateInventory());
+        this.quests.onQuestUpdate(() => this.updateQuestTracker());
     }
 
-    setupEvents() {
-        if (this.menuBtn) {
-            this.menuBtn.addEventListener('click', () => {
-                if (this.game.questSystem) {
-                    this.game.questSystem.toggle();
-                }
-            });
-        }
-
-        if (this.questClose) {
-            this.questClose.addEventListener('click', () => {
-                if (this.game.questSystem) {
-                    this.game.questSystem.hide();
-                }
-            });
-        }
-
-        if (this.musicBtn) {
-            this.musicBtn.addEventListener('click', () => {
-                this.musicEnabled = !this.musicEnabled;
-                this.musicBtn.style.opacity = this.musicEnabled ? '1' : '0.5';
-            });
-        }
-
-        if (this.outfitBtn && this.outfitPanel) {
-            this.outfitBtn.addEventListener('click', () => {
-                this.outfitPanel.classList.toggle('active');
-            });
-        }
-
-        if (this.outfitClose && this.outfitPanel) {
-            this.outfitClose.addEventListener('click', () => {
-                this.outfitPanel.classList.remove('active');
-            });
-        }
-
-        if (this.petBtn) {
-            this.petBtn.addEventListener('click', () => {
-                // Show a small notification
-                this.showToast('🐾 Companions coming soon!');
-            });
-        }
+    createElements() {
+        this.container.innerHTML = `
+            <div id="quest-tracker" class="hud-panel">
+                <div class="hud-title">📋 Active Quests</div>
+                <div id="quest-list" class="quest-list">
+                    <div class="quest-empty">Talk to Postmaster Edgar to begin</div>
+                </div>
+            </div>
+            <div id="inventory-bar" class="inventory-bar">
+                <div class="hud-title">🎒 Inventory</div>
+                <div id="inventory-slots" class="inventory-slots"></div>
+            </div>
+            <div id="minimap" class="minimap">
+                <canvas id="minimap-canvas" width="120" height="120"></canvas>
+            </div>
+            <div id="controls-hint" class="controls-hint">
+                <span>WASD: Move</span>
+                <span>Mouse: Look</span>
+                <span>E: Interact</span>
+                <span>Space: Jump</span>
+                <span>Shift: Run</span>
+            </div>
+        `;
     }
 
-    createOutfits() {
-        if (!this.outfitGrid) return;
-        
-        const outfits = [
-            { emoji: '👕', name: 'Default', colors: { body: '#5BA3A3', skirt: '#B04040' } },
-            { emoji: '🌸', name: 'Sakura', colors: { body: '#E88080', skirt: '#F8B0B0' } },
-            { emoji: '🌊', name: 'Ocean', colors: { body: '#3A6EA5', skirt: '#2E5B88' } },
-            { emoji: '🌙', name: 'Night', colors: { body: '#3A3A5E', skirt: '#2A2A4E' } },
-            { emoji: '☀️', name: 'Sunny', colors: { body: '#F4C430', skirt: '#E88040' } },
-            { emoji: '🍃', name: 'Forest', colors: { body: '#5A8A52', skirt: '#68A060' } },
+    updateQuestTracker() {
+        const questList = document.getElementById('quest-list');
+        if (!questList) return;
+
+        const active = this.quests.getActiveQuests();
+        if (active.length === 0) {
+            questList.innerHTML = '<div class="quest-empty">No active quests</div>';
+            return;
+        }
+
+        questList.innerHTML = active.map(q => {
+            const step = q.steps[q.currentStep];
+            return `
+                <div class="quest-item">
+                    <div class="quest-name">${q.title}</div>
+                    <div class="quest-step">${step ? step.description : 'Complete'}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    updateInventory() {
+        const slots = document.getElementById('inventory-slots');
+        if (!slots) return;
+
+        const items = this.inventory.getItems();
+        if (items.length === 0) {
+            slots.innerHTML = '<div class="inventory-empty">Empty</div>';
+            return;
+        }
+
+        slots.innerHTML = items.map(item => `
+            <div class="inventory-item" title="${item.description || item.name}">
+                <span class="item-icon">${item.icon || '📦'}</span>
+                <span class="item-name">${item.name}</span>
+                ${item.quantity > 1 ? `<span class="item-qty">x${item.quantity}</span>` : ''}
+            </div>
+        `).join('');
+    }
+
+    update(player) {
+        // Update minimap
+        this.updateMinimap(player);
+    }
+
+    updateMinimap(player) {
+        const canvas = document.getElementById('minimap-canvas');
+        if (!canvas || !player || !player.mesh) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        const scale = 0.6; // world units to pixels
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(0, 0, w, h);
+
+        // Center of minimap = player position
+        const px = player.mesh.position.x;
+        const pz = player.mesh.position.z;
+        const cx = w / 2;
+        const cy = h / 2;
+
+        // Draw zone indicators
+        const zones = [
+            { name: 'Harbor', x: 15, z: -50, color: '#4488AA' },
+            { name: 'Market', x: 30, z: 15, color: '#CC8844' },
+            { name: 'Park', x: -35, z: 10, color: '#44AA44' },
+            { name: 'Residential', x: 0, z: 55, color: '#AA8866' },
+            { name: 'Observatory', x: -60, z: 65, color: '#8888AA' }
         ];
 
-        outfits.forEach((outfit, i) => {
-            const item = document.createElement('div');
-            item.className = `outfit-item${i === 0 ? ' selected' : ''}`;
-            item.textContent = outfit.emoji;
-            item.title = outfit.name;
-            item.addEventListener('click', () => {
-                // Update selection
-                document.querySelectorAll('.outfit-item').forEach(el => el.classList.remove('selected'));
-                item.classList.add('selected');
-                this.selectedOutfit = i;
-
-                // Change player colors
-                const player = this.game.scenes.game?.player;
-                if (player) {
-                    player.bodyColor = outfit.colors.body;
-                    player.skirtColor = outfit.colors.skirt;
-                }
-
-                this.showToast(`Outfit: ${outfit.name}`);
-            });
-            this.outfitGrid.appendChild(item);
-        });
-    }
-
-    showToast(message) {
-        // Create simple toast notification
-        const existing = document.querySelector('.game-toast');
-        if (existing) existing.remove();
-
-        const toast = document.createElement('div');
-        toast.className = 'game-toast';
-        toast.textContent = message;
-        toast.style.cssText = `
-      position: fixed;
-      top: 70px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-10px);
-      background: rgba(248, 248, 240, 0.95);
-      color: #2A2A3E;
-      padding: 10px 24px;
-      border-radius: 8px;
-      border: 2px solid #2A2A3E;
-      font-family: 'Silkscreen', monospace;
-      font-size: 12px;
-      letter-spacing: 1px;
-      z-index: 300;
-      box-shadow: 0 4px 12px rgba(26, 26, 46, 0.2);
-      animation: toastIn 0.3s ease forwards;
-    `;
-
-        // Add animation keyframes if not already present
-        if (!document.getElementById('toast-styles')) {
-            const style = document.createElement('style');
-            style.id = 'toast-styles';
-            style.textContent = `
-        @keyframes toastIn {
-          from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-          to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-        @keyframes toastOut {
-          from { opacity: 1; transform: translateX(-50%) translateY(0); }
-          to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-        }
-      `;
-            document.head.appendChild(style);
+        for (const zone of zones) {
+            const sx = cx + (zone.x - px) * scale;
+            const sy = cy + (zone.z - pz) * scale;
+            if (sx > -10 && sx < w + 10 && sy > -10 && sy < h + 10) {
+                ctx.fillStyle = zone.color;
+                ctx.beginPath();
+                ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
 
-        document.body.appendChild(toast);
+        // Player dot
+        ctx.fillStyle = '#44FF44';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        ctx.fill();
 
-        setTimeout(() => {
-            toast.style.animation = 'toastOut 0.3s ease forwards';
-            setTimeout(() => toast.remove(), 300);
-        }, 2000);
-    }
+        // Player direction indicator
+        const facing = player.facing || 0;
+        ctx.strokeStyle = '#44FF44';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(
+            cx + Math.sin(facing) * 8,
+            cy - Math.cos(facing) * 8
+        );
+        ctx.stroke();
 
-    show() {
-        this.hudEl.classList.remove('hidden');
-    }
-
-    hide() {
-        this.hudEl.classList.add('hidden');
+        // Border
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(0, 0, w, h);
     }
 }

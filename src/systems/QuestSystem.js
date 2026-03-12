@@ -1,122 +1,127 @@
-// =============================================
-// QUEST SYSTEM — Task Checklist
-// Handwritten-style quest tracking
-// =============================================
-
 export class QuestSystem {
-    constructor() {
-        this.quests = [
-            {
-                id: 'harbor_delivery',
-                title: 'Deliver to Old Tanaka',
-                description: 'Sailor Kim has a package. Take it to Old Tanaka on the hilltop.',
-                progress: 0,
-                maxProgress: 1,
-                completed: false,
-            },
-            {
-                id: 'lost_note',
-                title: 'A note lost at sea',
-                description: 'Take Fisher Yuki\'s waterproof note to the lighthouse keeper.',
-                progress: 0,
-                maxProgress: 1,
-                completed: false,
-            },
-            {
-                id: 'lunch_delivery',
-                title: 'Lunch box delivery',
-                description: 'Chef Hana needs lunch boxes delivered to the construction workers.',
-                progress: 0,
-                maxProgress: 3,
-                completed: false,
-            },
-            {
-                id: 'letter_delivery',
-                title: 'Falling off the corporate ladder',
-                description: 'Deliver Artist Sora\'s letter to her sister at the lighthouse.',
-                progress: 0,
-                maxProgress: 1,
-                completed: false,
-            },
-            {
-                id: 'telescope',
-                title: 'The telescope lens',
-                description: 'Bring the telescope lens from Old Tanaka to Keeper Aoi.',
-                progress: 0,
-                maxProgress: 1,
-                completed: false,
-            },
-        ];
+    constructor(questData, inventorySystem) {
+        this.quests = new Map();
+        this.activeQuests = [];
+        this.completedQuests = [];
+        this.inventory = inventorySystem;
+        this.notifications = [];    // { text, timer }
+        this.questUpdateCallbacks = [];
 
-        this.panel = document.getElementById('quest-panel');
-        this.listEl = document.getElementById('quest-list');
-
-        this.renderQuests();
+        // Initialize quests from data
+        for (const q of questData) {
+            this.quests.set(q.id, {
+                ...q,
+                status: 'available',    // available | active | delivering | completed
+                currentStep: 0
+            });
+        }
     }
 
-    renderQuests() {
-        if (!this.listEl) return;
-        
-        this.listEl.innerHTML = '';
-        this.quests.forEach(quest => {
-            const item = document.createElement('div');
-            item.className = `quest-item${quest.completed ? ' completed' : ''}`;
-            item.innerHTML = `
-        <div class="quest-checkbox"></div>
-        <div class="quest-info">
-          <h3>${quest.title}</h3>
-          <p>${quest.description}</p>
-          <div class="quest-progress">${quest.progress}/${quest.maxProgress}</div>
-        </div>
-      `;
-            this.listEl.appendChild(item);
+    onQuestUpdate(callback) {
+        this.questUpdateCallbacks.push(callback);
+    }
+
+    notify(text) {
+        this.notifications.push({ text, timer: 4.0 });
+    }
+
+    activateQuest(questId) {
+        const quest = this.quests.get(questId);
+        if (!quest || quest.status !== 'available') return false;
+
+        quest.status = 'active';
+        quest.currentStep = 0;
+        this.activeQuests.push(questId);
+        this.notify(`New Quest: ${quest.title}`);
+
+        // Only give the first step's item if the player picks it up from the quest giver directly
+        // (single-step quests where giver hands the delivery item)
+        if (quest.steps[0] && quest.steps[0].giveItem && quest.steps[0].giveOnAccept !== false) {
+            // Only give if this step's NPC is different from the giver (pickup quests)
+            // For multi-step quests, items are given by the intermediate NPC via advanceQuest
+            if (quest.steps.length === 1) {
+                this.inventory.addItem(quest.steps[0].giveItem);
+            }
+        }
+
+        this.emitUpdate();
+        return true;
+    }
+
+    advanceQuest(questId) {
+        const quest = this.quests.get(questId);
+        if (!quest || quest.status === 'completed') return false;
+
+        quest.currentStep++;
+
+        if (quest.currentStep >= quest.steps.length) {
+            // Quest complete!
+            quest.status = 'completed';
+            this.activeQuests = this.activeQuests.filter(id => id !== questId);
+            this.completedQuests.push(questId);
+            this.notify(`Quest Completed: ${quest.title}!`);
+
+            // Give reward
+            if (quest.reward) {
+                if (quest.reward.item) {
+                    this.inventory.addItem(quest.reward.item);
+                }
+                this.notify(`Reward: ${quest.reward.description}`);
+            }
+        } else {
+            const step = quest.steps[quest.currentStep];
+            if (step.giveItem) {
+                this.inventory.addItem(step.giveItem);
+            }
+            this.notify(step.description || 'Quest updated');
+        }
+
+        this.emitUpdate();
+        return true;
+    }
+
+    getActiveQuests() {
+        return this.activeQuests.map(id => this.quests.get(id)).filter(Boolean);
+    }
+
+    getQuestForNPC(npcId) {
+        // Return quest that involves this NPC at the current step
+        for (const questId of this.activeQuests) {
+            const quest = this.quests.get(questId);
+            if (!quest) continue;
+            const currentStep = quest.steps[quest.currentStep];
+            if (currentStep && currentStep.npcId === npcId) {
+                return quest;
+            }
+        }
+        return null;
+    }
+
+    getAvailableQuestForNPC(npcId) {
+        for (const [, quest] of this.quests) {
+            if (quest.status === 'available' && quest.giverNpcId === npcId) {
+                return quest;
+            }
+        }
+        return null;
+    }
+
+    isQuestCompleted(questId) {
+        const quest = this.quests.get(questId);
+        return quest && quest.status === 'completed';
+    }
+
+    update(delta) {
+        // Expire notifications
+        this.notifications = this.notifications.filter(n => {
+            n.timer -= delta;
+            return n.timer > 0;
         });
     }
 
-    addProgress(questId) {
-        const quest = this.quests.find(q => q.id === questId);
-        if (quest && !quest.completed) {
-            quest.progress = Math.min(quest.progress + 1, quest.maxProgress);
-            if (quest.progress >= quest.maxProgress) {
-                quest.completed = true;
-            }
-            this.renderQuests();
-        }
-    }
-
-    isCompleted(questId) {
-        const quest = this.quests.find(q => q.id === questId);
-        return quest ? quest.completed : false;
-    }
-
-    getCompletedCount() {
-        return this.quests.filter(q => q.completed).length;
-    }
-
-    getTotalCount() {
-        return this.quests.length;
-    }
-
-    show() {
-        if (this.panel) {
-            this.panel.classList.add('active');
-            this.renderQuests();
-        }
-    }
-
-    hide() {
-        if (this.panel) {
-            this.panel.classList.remove('active');
-        }
-    }
-
-    toggle() {
-        if (!this.panel) return;
-        
-        if (this.panel.classList.contains('active')) {
-            this.hide();
-        } else {
-            this.show();
+    emitUpdate() {
+        for (const cb of this.questUpdateCallbacks) {
+            cb();
         }
     }
 }

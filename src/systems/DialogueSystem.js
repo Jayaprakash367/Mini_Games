@@ -1,117 +1,125 @@
-// =============================================
-// DIALOGUE SYSTEM — Character Dialogue Box
-// Typewriter effect, character name label, next button
-// =============================================
-
 export class DialogueSystem {
     constructor() {
-        this.box = document.getElementById('dialogue-box');
-        this.nameEl = document.getElementById('dialogue-name');
-        this.textEl = document.getElementById('dialogue-text');
-        this.nextBtn = document.getElementById('dialogue-next');
-
-        this.dialogues = [];
-        this.currentIndex = 0;
         this.isActive = false;
-        this.isTyping = false;
-        this.typewriterTimer = null;
-        this.currentText = '';
-        this.displayedText = '';
-        this.charIndex = 0;
-        this.onComplete = null;
-        this.typeSpeed = 30;
-
-        if (this.nextBtn) {
-            this.nextBtn.addEventListener('click', () => this.advance());
-        }
-        // Also allow clicking the dialogue box itself to advance
-        if (this.box) {
-            this.box.addEventListener('click', (e) => {
-                if (this.nextBtn && e.target !== this.nextBtn && !this.nextBtn.contains(e.target)) {
-                    this.advance();
-                } else if (!this.nextBtn) {
-                    this.advance();
-                }
-            });
-        }
-    }
-
-    start(dialogues, onComplete) {
-        this.dialogues = dialogues;
+        this.currentDialogue = null;
         this.currentIndex = 0;
-        this.isActive = true;
-        this.onComplete = onComplete || null;
-
-        if (this.box) {
-            this.box.classList.remove('hidden');
-            this.box.classList.add('active');
-        }
-
-        this.showCurrentDialogue();
+        this.displayedText = '';
+        this.fullText = '';
+        this.charIndex = 0;
+        this.typeSpeed = 0.03; // seconds per character
+        this.typeTimer = 0;
+        this.isTyping = false;
+        this.currentNPC = null;
+        this.onDialogueEnd = null;
+        this.choices = null;
+        this.selectedChoice = 0;
     }
 
-    showCurrentDialogue() {
-        if (this.currentIndex >= this.dialogues.length) {
-            this.close();
+    startDialogue(npc, dialogueLines) {
+        this.isActive = true;
+        this.currentNPC = npc;
+        this.currentDialogue = dialogueLines;
+        this.currentIndex = 0;
+        this.choices = null;
+        this.selectedChoice = 0;
+        this.showLine();
+
+        // Exit pointer lock for dialogue
+        if (document.pointerLockElement) {
+            document.exitPointerLock();
+        }
+    }
+
+    showLine() {
+        if (this.currentIndex >= this.currentDialogue.length) {
+            this.endDialogue();
             return;
         }
 
-        const dialogue = this.dialogues[this.currentIndex];
-        if (this.nameEl) this.nameEl.textContent = dialogue.name;
-        this.currentText = dialogue.text;
+        const line = this.currentDialogue[this.currentIndex];
+
+        if (line.choices) {
+            // This is a choice prompt
+            this.fullText = line.text || '';
+            this.choices = line.choices;
+            this.selectedChoice = 0;
+        } else {
+            this.fullText = line.text;
+            this.choices = null;
+        }
+
         this.displayedText = '';
         this.charIndex = 0;
         this.isTyping = true;
+        this.typeTimer = 0;
+    }
 
-        // Clear previous timer
-        if (this.typewriterTimer) {
-            clearInterval(this.typewriterTimer);
-        }
+    update(delta) {
+        if (!this.isActive) return;
 
-        // Typewriter effect
-        this.typewriterTimer = setInterval(() => {
-            if (this.charIndex < this.currentText.length) {
-                this.displayedText += this.currentText[this.charIndex];
-                if (this.textEl) this.textEl.textContent = this.displayedText;
+        if (this.isTyping) {
+            this.typeTimer += delta;
+            while (this.typeTimer >= this.typeSpeed && this.charIndex < this.fullText.length) {
+                this.displayedText += this.fullText[this.charIndex];
                 this.charIndex++;
-            } else {
-                clearInterval(this.typewriterTimer);
+                this.typeTimer -= this.typeSpeed;
+            }
+            if (this.charIndex >= this.fullText.length) {
                 this.isTyping = false;
             }
-        }, this.typeSpeed);
+        }
     }
 
     advance() {
+        if (!this.isActive) return;
+
         if (this.isTyping) {
             // Skip to end of current text
-            clearInterval(this.typewriterTimer);
-            if (this.textEl) this.textEl.textContent = this.currentText;
+            this.displayedText = this.fullText;
+            this.charIndex = this.fullText.length;
             this.isTyping = false;
             return;
         }
 
+        if (this.choices) {
+            // Process the chosen option
+            const choice = this.choices[this.selectedChoice];
+            if (choice.action) {
+                choice.action();
+            }
+            this.choices = null;
+            this.selectedChoice = 0;
+        }
+
         this.currentIndex++;
-        if (this.currentIndex >= this.dialogues.length) {
-            this.close();
-        } else {
-            this.showCurrentDialogue();
+        this.showLine();
+    }
+
+    selectChoice(direction) {
+        if (!this.choices) return;
+        this.selectedChoice += direction;
+        if (this.selectedChoice < 0) this.selectedChoice = this.choices.length - 1;
+        if (this.selectedChoice >= this.choices.length) this.selectedChoice = 0;
+    }
+
+    endDialogue() {
+        const callback = this.onDialogueEnd;
+        this.isActive = false;
+        this.currentDialogue = null;
+        this.currentNPC = null;
+        this.displayedText = '';
+        this.fullText = '';
+        this.choices = null;
+        if (callback) {
+            callback();
+            this.onDialogueEnd = null;
         }
     }
 
-    close() {
-        this.isActive = false;
-        if (this.box) this.box.classList.remove('active');
-
-        if (this.typewriterTimer) {
-            clearInterval(this.typewriterTimer);
+    getCurrentSpeaker() {
+        if (!this.isActive || !this.currentDialogue || this.currentIndex >= this.currentDialogue.length) {
+            return '';
         }
-
-        setTimeout(() => {
-            if (this.box) this.box.classList.add('hidden');
-            if (this.onComplete) {
-                this.onComplete();
-                this.onComplete = null;
-            }
-        }, 400);
+        return this.currentDialogue[this.currentIndex].speaker || '';
     }
 }

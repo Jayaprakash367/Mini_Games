@@ -3,112 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Messenger - A narrative adventure game set in a beautiful coastal city. Deliver messages, meet unique characters, and explore a hand-painted world." />
-  <title>Messenger — A Coastal Adventure</title>
+  <title>Messenger 3D — City Delivery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Caveat:wght@400;700&family=Inter:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <!-- Loading Screen -->
   <div id="loading-screen">
     <div class="loader-content">
+      <div class="loader-title">MESSENGER 3D</div>
+      <div class="loader-subtitle">City Delivery</div>
       <div class="loader-spinner"></div>
-      <p class="loader-text">Loading world...</p>
-      <div class="loader-bar-container">
-        <div class="loader-bar" id="loader-bar"></div>
-      </div>
+      <div class="loader-hint">Click anywhere to start</div>
     </div>
   </div>
 
-  <!-- Game Container -->
-  <div id="game-container">
-    <canvas id="game-canvas"></canvas>
+  <!-- 3D Game Container -->
+  <div id="game-container"></div>
 
-    <!-- Title Screen Overlay -->
-    <div id="title-screen" class="overlay active">
-      <div class="title-particles" id="title-particles"></div>
-      <div class="title-content">
-        <div class="title-text">
-          <span class="title-line">MES</span>
-          <span class="title-line">SEN</span>
-          <span class="title-line">GER</span>
-        </div>
-        <button id="begin-btn" class="begin-button">
-          <span>BEGIN</span>
-        </button>
-      </div>
-    </div>
+  <!-- Interaction Prompt -->
+  <div id="interaction-prompt" class="hidden"></div>
 
-    <!-- HUD -->
-    <div id="hud" class="hidden">
-      <!-- Top Right Menu -->
-      <button id="menu-btn" class="hud-btn hud-top-right" title="Quest Checklist">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <rect x="3" y="3" width="7" height="7" rx="1"/>
-          <rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/>
-          <rect x="14" y="14" width="7" height="7" rx="1"/>
-        </svg>
-      </button>
+  <!-- HUD Overlay -->
+  <div id="hud"></div>
 
-      <!-- Bottom Right Icons -->
-      <div class="hud-bottom-right">
-        <button id="music-btn" class="hud-btn" title="Toggle Music">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M9 18V5l12-2v13"/>
-            <circle cx="6" cy="18" r="3"/>
-            <circle cx="18" cy="16" r="3"/>
-          </svg>
-        </button>
-        <button id="outfit-btn" class="hud-btn" title="Outfits">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M20.38 3.46L16 2 12 5 8 2 3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>
-          </svg>
-        </button>
-        <button id="pet-btn" class="hud-btn" title="Companions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          </svg>
-        </button>
-      </div>
-    </div>
+  <!-- Dialogue Panel -->
+  <div id="dialogue-panel" class="hidden"></div>
 
-    <!-- Quest Panel -->
-    <div id="quest-panel" class="hidden">
-      <div class="quest-header">
-        <h2>CHECKLIST</h2>
-        <button id="quest-close" class="quest-close-btn">✕</button>
-      </div>
-      <div class="quest-list" id="quest-list"></div>
-    </div>
-
-    <!-- Dialogue Box -->
-    <div id="dialogue-box" class="hidden">
-      <div class="dialogue-name" id="dialogue-name">Messenger</div>
-      <div class="dialogue-content">
-        <p class="dialogue-text" id="dialogue-text"></p>
-        <button id="dialogue-next" class="dialogue-next-btn" title="Next">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Interaction Marker Template -->
-    <div id="interaction-markers"></div>
-
-    <!-- Outfit Panel -->
-    <div id="outfit-panel" class="hidden">
-      <div class="outfit-header">
-        <h2>OUTFITS</h2>
-        <button id="outfit-close" class="quest-close-btn">✕</button>
-      </div>
-      <div class="outfit-grid" id="outfit-grid"></div>
-    </div>
-  </div>
+  <!-- Quest Notifications -->
+  <div id="quest-notifications"></div>
 
   <script type="module" src="/src/main.js"></script>
 </body>
