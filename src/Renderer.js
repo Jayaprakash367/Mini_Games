@@ -16,10 +16,14 @@ export class Renderer {
         this.scene.background = new THREE.Color(0xCCDDEE);
         this.scene.fog = new THREE.FogExp2(0xCCDDEE, 0.0035);
 
+        const gameContainer = document.getElementById('game-container');
+        const initialWidth = gameContainer?.clientWidth || window.innerWidth;
+        const initialHeight = gameContainer?.clientHeight || window.innerHeight;
+
         // Camera
         this.camera = new THREE.PerspectiveCamera(
             55,
-            window.innerWidth / window.innerHeight,
+            initialWidth / initialHeight,
             0.1,
             600
         );
@@ -31,7 +35,7 @@ export class Renderer {
             powerPreference: 'high-performance',
             stencil: false
         });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize(initialWidth, initialHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -39,7 +43,7 @@ export class Renderer {
         this.renderer.toneMappingExposure = 1.3;
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-        document.getElementById('game-container').appendChild(this.renderer.domElement);
+        gameContainer.appendChild(this.renderer.domElement);
 
         this.setupLighting();
         this.setupSky();
@@ -131,8 +135,9 @@ export class Renderer {
     }
 
     onResize() {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
+        const gameContainer = document.getElementById('game-container');
+        const w = gameContainer?.clientWidth || window.innerWidth;
+        const h = gameContainer?.clientHeight || window.innerHeight;
         this.camera.aspect = w / h;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(w, h);

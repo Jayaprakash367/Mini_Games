@@ -13,28 +13,229 @@
 }
 
 body {
-    overflow: hidden;
-    background: #0a0a12;
+    overflow-x: hidden;
+    background: radial-gradient(circle at 20% 0%, #1c2b45 0%, #0b1220 45%, #070a12 100%);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: #fff;
-    cursor: crosshair;
     -webkit-font-smoothing: antialiased;
+}
+
+/* ── Poki-style App Shell ─────────────────────────────── */
+.app-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 14px;
+}
+
+.app-topbar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.panel {
+    background: rgba(7, 11, 18, 0.85);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    backdrop-filter: blur(12px) saturate(1.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+}
+
+.brand-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(6, 10, 16, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+}
+
+.brand-logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 0.72rem;
+    color: #0b1019;
+    background: linear-gradient(145deg, #f5c95b, #e3a937);
+}
+
+.brand-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.brand-subtitle {
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.55);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.topbar-search {
+    height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(7, 11, 18, 0.85);
+    color: rgba(255, 255, 255, 0.46);
+    font-size: 0.9rem;
+}
+
+.topbar-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.top-btn {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(7, 11, 18, 0.85);
+    color: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.top-btn--primary {
+    background: linear-gradient(145deg, #f5c95b, #e3a937);
+    color: #1c1405;
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+.app-main {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr) 240px;
+    gap: 14px;
+}
+
+.left-rail,
+.right-rail {
+    padding: 16px;
+}
+
+.panel-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.rail-item {
+    width: 100%;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.82);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rail-item.active {
+    border-color: rgba(240, 192, 64, 0.45);
+    color: #f0c040;
+    background: rgba(240, 192, 64, 0.08);
+}
+
+.center-stage {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 16px;
+}
+
+.stage-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.stage-description {
+    margin-top: 4px;
+    font-size: 0.84rem;
+    color: rgba(255, 255, 255, 0.62);
+}
+
+.stage-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 7px 9px;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.game-card {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 11px 12px;
+    margin-bottom: 10px;
+}
+
+.game-card-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.game-card-meta {
+    margin-top: 4px;
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.55);
 }
 
 /* ── Game Container ────────────────────────────────────── */
 #game-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    position: relative;
     z-index: 0;
+    width: 100%;
+    min-height: 420px;
+    height: min(68vh, 760px);
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(160deg, #0d1117 0%, #0b1423 70%, #0b1018 100%);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
 }
 
 #game-container canvas {
     display: block;
     width: 100%;
     height: 100%;
+    cursor: crosshair;
 }
 
 /* ── Loading Screen ────────────────────────────────────── */
@@ -501,6 +702,35 @@ body {
 
 /* ── Responsive ────────────────────────────────────────── */
 @media (max-width: 600px) {
+    .app-shell {
+        padding: 10px;
+        gap: 10px;
+    }
+    .app-topbar {
+        grid-template-columns: 1fr;
+    }
+    .topbar-actions {
+        display: none;
+    }
+    .topbar-search {
+        height: 44px;
+        font-size: 0.8rem;
+    }
+    .app-main {
+        grid-template-columns: 1fr;
+    }
+    .left-rail,
+    .right-rail {
+        display: none;
+    }
+    .stage-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    #game-container {
+        min-height: 300px;
+        height: 52vh;
+    }
     #quest-tracker {
         width: 200px;
         font-size: 0.85em;

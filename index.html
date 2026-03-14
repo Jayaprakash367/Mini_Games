@@ -10,6 +10,67 @@
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
+  <div class="app-shell">
+    <header class="app-topbar">
+      <div class="brand-block">
+        <div class="brand-logo">M3D</div>
+        <div class="brand-text">
+          <div class="brand-title">Messenger 3D</div>
+          <div class="brand-subtitle">Arcade Hub</div>
+        </div>
+      </div>
+      <div class="topbar-search">Search games, tags, and quests</div>
+      <div class="topbar-actions">
+        <button class="top-btn">Favorites</button>
+        <button class="top-btn top-btn--primary">Play</button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <aside class="left-rail panel">
+        <div class="panel-title">Menu</div>
+        <button class="rail-item active">Featured</button>
+        <button class="rail-item">Adventure</button>
+        <button class="rail-item">Action</button>
+        <button class="rail-item">Racing</button>
+        <button class="rail-item">Puzzle</button>
+      </aside>
+
+      <section class="center-stage">
+        <div class="stage-header panel">
+          <div>
+            <h1 class="stage-title">Messenger 3D — City Delivery</h1>
+            <p class="stage-description">Explore the city, complete deliveries, and uncover story missions.</p>
+          </div>
+          <div class="stage-badges">
+            <span class="badge">3D</span>
+            <span class="badge">Single Player</span>
+            <span class="badge">Free</span>
+          </div>
+        </div>
+
+        <!-- 3D Game Container -->
+        <div id="game-container"></div>
+      </section>
+
+      <aside class="right-rail panel">
+        <div class="panel-title">Up Next</div>
+        <div class="game-card">
+          <div class="game-card-title">Neon Courier Run</div>
+          <div class="game-card-meta">Arcade • 4.8 ★</div>
+        </div>
+        <div class="game-card">
+          <div class="game-card-title">Skyline Drift Pro</div>
+          <div class="game-card-meta">Racing • 4.6 ★</div>
+        </div>
+        <div class="game-card">
+          <div class="game-card-title">Quantum Rush</div>
+          <div class="game-card-meta">Action • 4.7 ★</div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
   <!-- Loading Screen -->
   <div id="loading-screen">
     <div class="loader-content">
@@ -19,9 +80,6 @@
       <div class="loader-hint">Click anywhere to start</div>
     </div>
   </div>
-
-  <!-- 3D Game Container -->
-  <div id="game-container"></div>
 
   <!-- Interaction Prompt -->
   <div id="interaction-prompt" class="hidden"></div>
