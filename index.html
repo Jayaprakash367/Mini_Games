@@ -3,696 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ELITE GAMES - Competitive Gaming Arena</title>
+    <title>GameVerse - Futuristic Gaming Arena</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <span class="logo-icon">⚔️</span>
-                <span class="logo-text">ELITE GAMES</span>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar glass" aria-label="Primary">
+        <div class="logo neon-glow">GameVerse</div>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#featured">Featured</a></li>
+            <li><a href="#categories">Categories</a></li>
+            <li><a href="#live-now">Live Now</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="search-toggle" id="searchToggle" aria-label="Open search">🔍</button>
+            <div class="search-bar" id="searchBar">
+                <input type="text" placeholder="Search games...">
             </div>
-            <ul class="nav-menu">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#teams">Teams</a></li>
-                <li><a href="#tournaments">Tournaments</a></li>
-                <li><a href="#gallery">Gallery</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-            <button class="nav-btn">Sign In</button>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+            <button class="btn btn-primary btn-sm">Play Now</button>
         </div>
     </nav>
 
-    <!-- Hero Section with Background Image -->
-    <section class="hero" id="home">
-        <div class="hero-background">
-            <img src="dark-crusader-lords-3840x2160-25958.jpg" alt="Warrior">
-        </div>
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1>ELITE GAMES</h1>
-            <p>Championship Esports Tournament</p>
-            <div class="hero-cta">
-                <button class="btn btn-primary">Join Now</button>
-                <button class="btn btn-secondary">Learn More</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Teams Section -->
-    <section class="teams" id="teams">
-        <div class="container">
-            <h2 class="section-title">Teams</h2>
-            <div class="teams-grid">
-                <div class="team-card">
-                    <div class="team-badge" style="background: linear-gradient(135deg, #FF4444 0%, #CC0000 100%);">
-                        <div class="badge-icon">⚡</div>
-                    </div>
-                    <h3>Thunder</h3>
-                    <p>Striker Team</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-badge" style="background: linear-gradient(135deg, #4444FF 0%, #0000CC 100%);">
-                        <div class="badge-icon">🔱</div>
-                    </div>
-                    <h3>Poseidon</h3>
-                    <p>Guardian Team</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-badge" style="background: linear-gradient(135deg, #996633 0%, #664422 100%);">
-                        <div class="badge-icon">👑</div>
-                    </div>
-                    <h3>Royal</h3>
-                    <p>Dynasty Team</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-badge" style="background: linear-gradient(135deg, #FF6600 0%, #DD4400 100%);">
-                        <div class="badge-icon">🐉</div>
-                    </div>
-                    <h3>Dragon</h3>
-                    <p>Inferno Team</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-badge" style="background: linear-gradient(135deg, #FFAA00 0%, #DD8800 100%);">
-                        <div class="badge-icon">🦁</div>
-                    </div>
-                    <h3>Beast</h3>
-                    <p>Predator Team</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-badge" style="background: linear-gradient(135deg, #444444 0%, #222222 100%);">
-                        <div class="badge-icon">⚔️</div>
-                    </div>
-                    <h3>Shadow</h3>
-                    <p>Warrior Team</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Tournaments Section -->
-    <section class="tournaments" id="tournaments">
-        <div class="container">
-            <h2 class="section-title">Current Tournaments</h2>
-            <div class="tournament-list">
-                <div class="tournament-item">
-                    <div class="match">
-                        <div class="team-match">
-                            <div class="team-badge-small" style="background: linear-gradient(135deg, #FF4444 0%, #CC0000 100%);">⚡</div>
-                            <span>Thunder</span>
-                        </div>
-                        <div class="score">14 - 9</div>
-                        <div class="team-match">
-                            <div class="team-badge-small" style="background: linear-gradient(135deg, #4444FF 0%, #0000CC 100%);">🔱</div>
-                            <span>Poseidon</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tournament-item">
-                    <div class="match">
-                        <div class="team-match">
-                            <div class="team-badge-small" style="background: linear-gradient(135deg, #996633 0%, #664422 100%);">👑</div>
-                            <span>Royal</span>
-                        </div>
-                        <div class="score">8 - 10</div>
-                        <div class="team-match">
-                            <div class="team-badge-small" style="background: linear-gradient(135deg, #FF6600 0%, #DD4400 100%);">🐉</div>
-                            <span>Dragon</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tournament-item">
-                    <div class="match">
-                        <div class="team-match">
-                            <div class="team-badge-small" style="background: linear-gradient(135deg, #FFAA00 0%, #DD8800 100%);">🦁</div>
-                            <span>Beast</span>
-                        </div>
-                        <div class="score">10 - 10</div>
-                        <div class="team-match">
-                            <div class="team-badge-small" style="background: linear-gradient(135deg, #444444 0%, #222222 100%);">⚔️</div>
-                            <span>Shadow</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Gallery Section -->
-    <section class="gallery" id="gallery">
-        <div class="container">
-            <h2 class="section-title">Game Gallery</h2>
-            <div class="gallery-grid">
-                <div class="gallery-item" style="background: linear-gradient(135deg, #FF4444 0%, #CC0000 100%);">
-                    <div class="gallery-icon">⚡</div>
-                </div>
-                <div class="gallery-item" style="background: linear-gradient(135deg, #4444FF 0%, #0000CC 100%);">
-                    <div class="gallery-icon">🔱</div>
-                </div>
-                <div class="gallery-item" style="background: linear-gradient(135deg, #996633 0%, #664422 100%);">
-                    <div class="gallery-icon">👑</div>
-                </div>
-                <div class="gallery-item" style="background: linear-gradient(135deg, #FF6600 0%, #DD4400 100%);">
-                    <div class="gallery-icon">🐉</div>
-                </div>
-                <div class="gallery-item" style="background: linear-gradient(135deg, #FFAA00 0%, #DD8800 100%);">
-                    <div class="gallery-icon">🦁</div>
-                </div>
-                <div class="gallery-item" style="background: linear-gradient(135deg, #444444 0%, #222222 100%);">
-                    <div class="gallery-icon">⚔️</div>
-                </div>
-                <div class="gallery-item" style="background: linear-gradient(135deg, #DD3366 0%, #BB1155 100%);">
-                    <div class="gallery-icon">🗡️</div>
-                </div>
-                <div class="gallery-item" style="background: linear-gradient(135deg, #666666 0%, #444444 100%);">
-                    <div class="gallery-icon">⚔️</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Newsletter Section -->
-    <section class="newsletter">
-        <div class="container">
-            <div class="newsletter-content">
-                <h2>Stay Updated</h2>
-                <p>Subscribe to our newsletter for latest tournament updates</p>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="Enter your email" required>
-                    <button type="submit" class="btn btn-primary">Subscribe</button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer" id="contact">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#teams">Teams</a></li>
-                        <li><a href="#tournaments">Tournaments</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Follow Us</h4>
-                    <ul>
-                        <li><a href="#">Twitter</a></li>
-                        <li><a href="#">Discord</a></li>
-                        <li><a href="#">Twitch</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact</h4>
-                    <p>Email: info@elitegames.com</p>
-                    <p>Phone: +1 (555) 123-4567</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 Elite Games. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="script.js"></script>
-</body>
-</html>
-
     <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="hero-background"></div>
-        <div class="hero-overlay"></div>
+    <section id="hero" class="hero">
+        <div class="hero-bg bg-gradient"></div>
+        <div class="hero-blobs">
+            <div class="blob-hero blob"></div>
+            <div class="blob-hero blob"></div>
+        </div>
+        <img src="dark-crusader-lords-3840x2160-25958.jpg" alt="Epic Gaming Background" class="hero-image">
         <div class="hero-content">
-            <h1 class="hero-title">ELITE GAMES</h1>
-            <p class="hero-subtitle">Rise. Compete. Dominate.</p>
+            <h1>GameVerse</h1>
+            <p class="hero-subtitle">Enter the Future of Gaming</p>
             <div class="hero-buttons">
-                <button class="btn-primary">Watch Trailer</button>
-                <button class="btn-secondary">Explore Now</button>
-            </div>
-        </div>
-        <div class="hero-nav-arrows">
-            <span class="arrow left">‹</span>
-            <span class="arrow right">›</span>
-        </div>
-    </section>
-
-    <!-- Tournaments Section -->
-    <section class="tournaments" id="tournaments">
-        <div class="section-header">
-            <h2>Battles Extreme Masters</h2>
-            <p>Tournament Results</p>
-        </div>
-        <div class="tournament-grid">
-            <div class="tournament-card">
-                <div class="tournament-team team-left">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FF4444'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='white'%3E⚡%3C/text%3E%3C/svg%3E" alt="Team">
-                    <span class="team-name">DEVILS</span>
-                </div>
-                <div class="tournament-score">
-                    <span class="score">14</span>
-                    <span class="vs">vs</span>
-                    <span class="score">9</span>
-                </div>
-                <div class="tournament-team team-right">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%234444FF'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='white'%3E🔱%3C/text%3E%3C/svg%3E" alt="Team">
-                    <span class="team-name">FIERCE</span>
-                </div>
-            </div>
-
-            <div class="tournament-card">
-                <div class="tournament-team team-left">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23996633'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='white'%3E👑%3C/text%3E%3C/svg%3E" alt="Team">
-                    <span class="team-name">GUARDIAN</span>
-                </div>
-                <div class="tournament-score">
-                    <span class="score">8</span>
-                    <span class="vs">vs</span>
-                    <span class="score">10</span>
-                </div>
-                <div class="tournament-team team-right">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FF6600'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='white'%3E🐉%3C/text%3E%3C/svg%3E" alt="Team">
-                    <span class="team-name">AWAKENING</span>
-                </div>
-            </div>
-
-            <div class="tournament-card">
-                <div class="tournament-team team-left">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FFAA00'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='white'%3E🦁%3C/text%3E%3C/svg%3E" alt="Team">
-                    <span class="team-name">BLIZZARD</span>
-                </div>
-                <div class="tournament-score">
-                    <span class="score">10</span>
-                    <span class="vs">vs</span>
-                    <span class="score">10</span>
-                </div>
-                <div class="tournament-team team-right">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23333333'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='white'%3E⚔️%3C/text%3E%3C/svg%3E" alt="Team">
-                    <span class="team-name">RAVEN</span>
-                </div>
-            </div>
-
-            <div class="tournament-card">
-                <div class="tournament-team team-left">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23CC3366'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='white'%3E🗡️%3C/text%3E%3C/svg%3E" alt="Team">
-                    <span class="team-name">ROSALION</span>
-                </div>
-                <div class="tournament-score">
-                    <span class="score">15</span>
-                    <span class="vs">vs</span>
-                    <span class="score">14</span>
-                </div>
-                <div class="tournament-team team-right">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23666666'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='white'%3E⚔️%3C/text%3E%3C/svg%3E" alt="Team">
-                    <span class="team-name">SOLDIER</span>
-                </div>
+                <button class="btn btn-primary btn-lg">Start Playing</button>
+                <button class="btn btn-secondary btn-lg">Watch Live</button>
             </div>
         </div>
     </section>
 
-    <!-- News Section -->
-    <section class="news" id="news">
-        <div class="section-header">
-            <h2>News & Updates</h2>
+    <!-- Featured Horizontal Scroll -->
+    <section id="featured" class="section-horizontal">
+        <div class="section-head">
+            <h2 class="section-title">🔥 Featured Games</h2>
         </div>
-        <div class="news-grid">
-            <div class="news-card">
-                <div class="news-image"></div>
-                <div class="news-content">
-                    <span class="news-label">Featured</span>
-                    <h3>Ranked Season 5 Begins</h3>
-                    <button class="btn-learn">Learn More</button>
-                </div>
+        <div class="featured-row">
+            <div class="game-card neon-glow">
+                <div class="card-icon">⚔️</div>
+                <h3>BattleForge</h3>
+                <p>24.5K Players Online</p>
             </div>
-            <div class="news-card">
-                <div class="news-image"></div>
-                <div class="news-content">
-                    <span class="news-label">Update</span>
-                    <h3>New Character Classes Available</h3>
-                    <button class="btn-learn">Learn More</button>
-                </div>
+            <div class="game-card">
+                <div class="card-icon">🚀</div>
+                <h3>Space Odyssey</h3>
+                <p>Live Tournament</p>
             </div>
-            <div class="news-card">
-                <div class="news-image"></div>
-                <div class="news-content">
-                    <span class="news-label">Event</span>
-                    <h3>Limited Time Event - Double XP</h3>
-                    <button class="btn-learn">Learn More</button>
+            <div class="game-card">
+                <div class="card-icon">🧩</div>
+                <h3>Quantum Puzzle</h3>
+                <p>New World Record</p>
+            </div>
+            <div class="game-card">
+                <div class="card-icon">🎯</div>
+                <h3>Target Master</h3>
+                <p>Daily Challenges</p>
+            </div>
+            <div class="game-card">
+                <div class="card-icon">🏎️</div>
+                <h3>Speed Drift</h3>
+                <p>High Speed Racing</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3D Carousel Section -->
+    <section id="live-now" class="section-live">
+        <div class="section-head">
+            <h2 class="section-title">Live Now</h2>
+            <p class="section-subtitle">Drop into rotating arenas and real-time battles.</p>
+        </div>
+        <div class="carousel-container">
+            <div class="carousel" id="liveCarousel">
+                <div class="carousel-item">
+                    <div style="font-size: 3rem;">⚡</div>
+                    <h4>Live Battle</h4>
+                </div>
+                <div class="carousel-item">
+                    <div style="font-size: 3rem;">🔱</div>
+                    <h4>Ocean Wars</h4>
+                </div>
+                <div class="carousel-item">
+                    <div style="font-size: 3rem;">👑</div>
+                    <h4>Royal Quest</h4>
+                </div>
+                <div class="carousel-item">
+                    <div style="font-size: 3rem;">🐉</div>
+                    <h4>Dragon Fire</h4>
+                </div>
+                <div class="carousel-item">
+                    <div style="font-size: 3rem;">🦁</div>
+                    <h4>Beast Arena</h4>
+                </div>
+                <div class="carousel-item">
+                    <div style="font-size: 3rem;">⚔️</div>
+                    <h4>Shadow Clash</h4>
+                </div>
+                <div class="carousel-item">
+                    <div style="font-size: 3rem;">🗡️</div>
+                    <h4>Sword Master</h4>
+                </div>
+                <div class="carousel-item">
+                    <div style="font-size: 3rem;">⭐</div>
+                    <h4>Star Battle</h4>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Awards Section -->
-    <section class="awards" id="games">
-        <div class="section-header">
-            <h2>Hall of Fame</h2>
-            <p>Game of the Year</p>
+    <!-- Categories Horizontal -->
+    <section id="categories" class="section-horizontal">
+        <div class="section-head">
+            <h2 class="section-title">Categories</h2>
+            <p class="section-subtitle">Curated lanes for every type of player.</p>
         </div>
-        <div class="awards-container">
-            <div class="award">🏆</div>
-            <div class="award">🏆</div>
-            <div class="award">🏆</div>
-            <div class="award">🏆</div>
-            <div class="award">🏆</div>
-        </div>
-    </section>
-
-    <!-- Team Section -->
-    <section class="team">
-        <div class="team-header">
-            <h2>Meet Our Team</h2>
-            <p>Elite Players & Streamers</p>
-        </div>
-        <div class="team-grid">
-            <div class="team-member">
-                <div class="member-image"></div>
-                <div class="member-info">
-                    <h3>Player Name</h3>
-                    <p>Pro Competitor</p>
-                </div>
+        <div class="category-row">
+            <div class="category-card">
+                <div class="card-icon">🎮</div>
+                <h4>Action</h4>
             </div>
-            <div class="team-member">
-                <div class="member-image"></div>
-                <div class="member-info">
-                    <h3>Streamer Name</h3>
-                    <p>Content Creator</p>
-                </div>
+            <div class="category-card">
+                <div class="card-icon">🧩</div>
+                <h4>Puzzle</h4>
             </div>
-            <div class="team-member">
-                <div class="member-image"></div>
-                <div class="member-info">
-                    <h3>Coach Name</h3>
-                    <p>Strategy Expert</p>
-                </div>
+            <div class="category-card">
+                <div class="card-icon">🏆</div>
+                <h4>Tournaments</h4>
             </div>
-            <div class="team-member">
-                <div class="member-image"></div>
-                <div class="member-info">
-                    <h3>Manager</h3>
-                    <p>Operations Lead</p>
-                </div>
+            <div class="category-card">
+                <div class="card-icon">🎯</div>
+                <h4>Skill Games</h4>
             </div>
-            <div class="team-member">
-                <div class="member-image"></div>
-                <div class="member-info">
-                    <h3>Analyst</h3>
-                    <p>Data Specialist</p>
-                </div>
+            <div class="category-card">
+                <div class="card-icon">🎪</div>
+                <h4>Fun</h4>
             </div>
-            <div class="team-member">
-                <div class="member-image"></div>
-                <div class="member-info">
-                    <h3>Developer</h3>
-                    <p>Tech Lead</p>
-                </div>
+            <div class="category-card">
+                <div class="card-icon">🚀</div>
+                <h4>Adventure</h4>
             </div>
         </div>
     </section>
 
-    <!-- Products Section -->
-    <section class="products">
-        <div class="section-header">
-            <h2>Our Gaming Products</h2>
+    <!-- Radial Menu Section -->
+    <section class="radial-section">
+        <div class="section-head">
+            <h2 class="section-title">Quick Categories</h2>
+            <p class="section-subtitle">Spin through the hottest genres in seconds.</p>
         </div>
-        <div class="products-grid">
-            <div class="product-card">
-                <div class="product-icon">🎮</div>
-                <h3>Gaming Pad</h3>
-            </div>
-            <div class="product-card">
-                <div class="product-icon">🎧</div>
-                <h3>Gaming Headset</h3>
-            </div>
-            <div class="product-card">
-                <div class="product-icon">⌨️</div>
-                <h3>Gaming Keyboard</h3>
-            </div>
-            <div class="product-card">
-                <div class="product-icon">🖱️</div>
-                <h3>Gaming Headphone</h3>
-            </div>
-        </div>
-    </section>
-
-    <!-- Partners Section -->
-    <section class="partners" id="partners">
-        <div class="section-header">
-            <h2>Our Valuable Partners</h2>
-        </div>
-        <div class="partners-grid">
-            <div class="partner">MATCHDAY</div>
-            <div class="partner">AWAKEN</div>
-            <div class="partner">SEVANG</div>
-            <div class="partner">FORTUNE</div>
-            <div class="partner">NOVA</div>
-        </div>
-    </section>
-
-    <!-- Newsletter Section -->
-    <section class="newsletter">
-        <h2>Elite Games Newsletter</h2>
-        <p>Stay updated with the latest tournaments and news</p>
-        <div class="newsletter-form">
-            <input type="email" placeholder="Enter your email">
-            <button class="btn-subscribe">Subscribe</button>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#tournaments">Tournaments</a></li>
-                    <li><a href="#news">News</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Follow Us</h4>
-                <div class="social-links">
-                    <a href="#">Twitch</a>
-                    <a href="#">YouTube</a>
-                    <a href="#">Twitter</a>
-                    <a href="#">Discord</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p>Email: info@elitegames.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Elite Games. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <script src="script.js"></script>
-</body>
-</html>
-                    <span class="live-badge">● LIVE</span>
-                    <h3>Speed Runner Pro League</h3>
-                    <p>Watch the fastest players compete</p>
-                </div>
-            </div>
-            <div class="featured-card featured-card-3">
-                <div class="featured-card-content">
-                    <span class="live-badge">● LIVE</span>
-                    <h3>Quiz Master Showdown</h3>
-                    <p>Test your knowledge and win prizes</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Categories Section -->
-    <section class="categories" id="categories">
-        <div class="categories-container">
-            <div class="section-title" style="color: #fff;">Browse Categories</div>
-            <div class="section-subtitle">Find your favorite game shows</div>
-            <div class="category-grid">
-                <div class="category-item">
-                    <div class="category-icon">🎮</div>
-                    <h4>Action</h4>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon">🧩</div>
-                    <h4>Puzzle</h4>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon">🏆</div>
-                    <h4>Tournament</h4>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon">🎯</div>
-                    <h4>Skill</h4>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon">🎪</div>
-                    <h4>Entertainment</h4>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon">🚀</div>
-                    <h4>Adventure</h4>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon">💡</div>
-                    <h4>Trivia</h4>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon">⭐</div>
-                    <h4>Featured</h4>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Shows Grid Section -->
-    <section class="featured" id="shows">
-        <div class="section-title">Popular Shows</div>
-        <div class="section-subtitle">Catch up on trending game shows</div>
-        <div class="shows-grid">
-            <div class="show-card">
-                <div class="show-thumbnail">🎮</div>
-                <div class="show-info">
-                    <div class="show-title">Battle Royale Masters</div>
-                    <div class="show-creator">by ProGamer99</div>
-                    <div class="viewers-count">24.5K watching</div>
-                </div>
-            </div>
-            <div class="show-card">
-                <div class="show-thumbnail">🏅</div>
-                <div class="show-info">
-                    <div class="show-title">Prize Quest Daily</div>
-                    <div class="show-creator">by GameHost</div>
-                    <div class="viewers-count">18.2K watching</div>
-                </div>
-            </div>
-            <div class="show-card">
-                <div class="show-thumbnail">🎪</div>
-                <div class="show-info">
-                    <div class="show-title">Fun & Games Night</div>
-                    <div class="show-creator">by EntertainPlus</div>
-                    <div class="viewers-count">32.8K watching</div>
-                </div>
-            </div>
-            <div class="show-card">
-                <div class="show-thumbnail">💎</div>
-                <div class="show-info">
-                    <div class="show-title">Treasure Hunt Live</div>
-                    <div class="show-creator">by AdventureKing</div>
-                    <div class="viewers-count">15.6K watching</div>
-                </div>
-            </div>
-            <div class="show-card">
-                <div class="show-thumbnail">⚡</div>
-                <div class="show-info">
-                    <div class="show-title">Speed Challenge Pro</div>
-                    <div class="show-creator">by FastPlayer</div>
-                    <div class="viewers-count">21.4K watching</div>
-                </div>
-            </div>
-            <div class="show-card">
-                <div class="show-thumbnail">🌟</div>
-                <div class="show-info">
-                    <div class="show-title">Celebrity Gaming</div>
-                    <div class="show-creator">by StarEvents</div>
-                    <div class="viewers-count">45.9K watching</div>
-                </div>
-            </div>
+        <div class="radial-menu">
+            <ul>
+                <li>⚔️</li>
+                <li>🔱</li>
+                <li>👑</li>
+                <li>🐉</li>
+                <li>🦁</li>
+                <li>⚔️</li>
+                <li>🗡️</li>
+                <li>⭐</li>
+            </ul>
         </div>
     </section>
 
     <!-- Stats Section -->
     <section class="stats">
-        <div class="stats-container">
-            <div class="section-title" style="color: #fff; margin-bottom: 2rem;">Why Choose GameVerse?</div>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">2.5M+</div>
-                    <div class="stat-label">Active Players</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">500+</div>
-                    <div class="stat-label">Shows & Events</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">1000+</div>
-                    <div class="stat-label">Daily Prizes</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">24/7</div>
-                    <div class="stat-label">Live Streaming</div>
-                </div>
+        <div class="section-head">
+            <h2 class="section-title">GameVerse Stats</h2>
+            <p class="section-subtitle">Live metrics from the arena right now.</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card glass">
+                <div class="stat-number" data-target="2500000" data-format="compact" data-suffix="+">0</div>
+                <div>Active Players</div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-number" data-target="500" data-format="standard" data-suffix="+">0</div>
+                <div>Live Shows</div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-number" data-target="1000000" data-format="compact" data-suffix="+" data-prefix="$">0</div>
+                <div>Prizes Won</div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-number">24/7</div>
+                <div>Live Gaming</div>
             </div>
         </div>
     </section>
 
-    <!-- Newsletter Section -->
+    <!-- Newsletter -->
     <section class="newsletter">
-        <div class="newsletter-container">
-            <h2>Never Miss a Game Show</h2>
-            <p>Subscribe to get notifications about new tournaments, exclusive events, and special offers.</p>
-            <div class="newsletter-form">
-                <input type="email" placeholder="Enter your email address">
-                <button>Subscribe</button>
-            </div>
+        <div class="newsletter-card glass">
+            <h2>Join GameVerse</h2>
+            <p>Get notified about new games and tournaments</p>
+            <form class="newsletter-form">
+                <input class="newsletter-input glass" type="email" placeholder="Enter your email" required>
+                <button class="btn btn-ghost" type="submit">Subscribe</button>
+            </form>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer>
-        <div class="footer-container">
+    <footer class="site-footer glass">
+        <div class="footer-inner">
             <div class="footer-grid">
-                <div class="footer-section">
-                    <h4>About GameVerse</h4>
+                <div>
+                    <h4>GameVerse</h4>
+                    <p>The future of competitive gaming platforms.</p>
+                </div>
+                <div>
+                    <h4>Links</h4>
                     <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Our Mission</a></li>
-                        <li><a href="#">Team</a></li>
-                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Tournaments</a></li>
+                        <li><a href="#">Support</a></li>
                     </ul>
                 </div>
-                <div class="footer-section">
-                    <h4>Help & Support</h4>
-                    <ul>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">FAQs</a></li>
-                        <li><a href="#">Report Issue</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Policies</h4>
-                    <ul>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Cookie Policy</a></li>
-                        <li><a href="#">Guidelines</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Follow Us</h4>
-                    <div class="social-links">
-                        <a href="#">f</a>
-                        <a href="#">𝕏</a>
-                        <a href="#">▶</a>
-                        <a href="#">📷</a>
+                <div>
+                    <h4>Follow</h4>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Twitter">🐦</a>
+                        <a href="#" aria-label="Twitch">📺</a>
+                        <a href="#" aria-label="Discord">💬</a>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 GameVerse. All rights reserved. | Bringing the thrill of gaming to everyone</p>
+                &copy; 2024 GameVerse. All rights reserved.
             </div>
         </div>
     </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
