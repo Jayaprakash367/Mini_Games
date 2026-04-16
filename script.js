@@ -29,12 +29,6 @@ document.querySelectorAll('a[href^=\"#\"]').forEach(anchor => {
     });
 });
 
-// Search Toggle
-document.getElementById('searchToggle').addEventListener('click', () => {
-    const searchBar = document.getElementById('searchBar');
-    searchBar.classList.toggle('active');
-});
-
 // Mobile Nav Toggle
 const navToggle = document.getElementById('navToggle');
 const navbar = document.querySelector('.navbar');

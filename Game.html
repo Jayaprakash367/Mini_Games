@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Shooter - MINI-GAMES</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Bubble Shooter Game Styles */
+        .game-container {
+            max-width: 700px;
+            margin: 8rem auto 2rem;
+            padding: 2.5rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0, 245, 160, 0.05);
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .game-title {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            background: linear-gradient(45deg, var(--neon-primary), var(--neon-secondary), var(--neon-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 30px rgba(0, 245, 160, 0.3);
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                text-shadow: 0 0 20px rgba(0, 245, 160, 0.3);
+            }
+            50% {
+                text-shadow: 0 0 40px rgba(0, 245, 160, 0.6);
+            }
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .stat {
+            background: rgba(0, 245, 160, 0.1);
+            border: 2px solid var(--glass-border);
+            padding: 1.2rem;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat:hover {
+            border-color: var(--neon-primary);
+            background: rgba(0, 245, 160, 0.15);
+            box-shadow: 0 0 20px rgba(0, 245, 160, 0.2);
+            transform: scale(1.05);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--neon-primary);
+            font-family: var(--font-display);
+        }
+
+        .game-canvas {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(to bottom, rgba(0, 245, 160, 0.05) 0%, rgba(255, 0, 0, 0.05) 85%, rgba(255, 0, 0, 0.2) 100%);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            cursor: crosshair;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-canvas::after {
+            content: 'DANGER ZONE';
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.3), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: rgba(255, 0, 0, 0.5);
+            font-weight: bold;
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0, 245, 160, 0.3);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            user-select: none;
+        }
+
+        .bubble:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(0, 255, 160, 0.6);
+        }
+
+        .bubble.color-1 {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+        }
+
+        .bubble.color-2 {
+            background: linear-gradient(135deg, #4ecdc4, #44b8aa);
+            color: white;
+        }
+
+        .bubble.color-3 {
+            background: linear-gradient(135deg, #95e1d3, #7fcfd1);
+            color: white;
+        }
+
+        .bubble.color-4 {
+            background: linear-gradient(135deg, #f9ca24, #f0932b);
+            color: white;
+        }
+
+        .bubble.color-5 {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            color: white;
+        }
+
+        .shooter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: var(--neon-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 20px var(--neon-primary);
+            z-index: 100;
+        }
+
+        .shooter::before {
+            content: '';
+            position: absolute;
+            width: 3px;
+            height: 40px;
+            background: var(--neon-primary);
+            top: -35px;
+            transform: rotate(0deg);
+            border-radius: 2px;
+        }
+
+        .next-bubble {
+            position: absolute;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border: 2px solid var(--glass-border);
+            background: rgba(0, 245, 160, 0.1);
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-game {
+            flex: 1;
+            padding: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: var(--font-display);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-start {
+            background: linear-gradient(45deg, var(--neon-primary), var(--neon-accent));
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px rgba(0, 245, 160, 0.4);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 0 40px rgba(0, 245, 160, 0.7);
+        }
+
+        .btn-start:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .btn-reset {
+            background: linear-gradient(45deg, rgba(255, 122, 0, 0.2), rgba(255, 122, 0, 0.1));
+            color: var(--neon-secondary);
+            border: 2px solid var(--neon-secondary);
+            box-shadow: 0 0 15px rgba(255, 122, 0, 0.2);
+        }
+
+        .btn-reset:hover {
+            background: linear-gradient(45deg, rgba(255, 122, 0, 0.4), rgba(255, 122, 0, 0.3));
+            box-shadow: 0 0 30px rgba(255, 122, 0, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .btn-reset:active {
+            transform: translateY(-1px);
+        }
+
+        .game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: var(--neon-primary);
+            padding: 2.5rem;
+            border-radius: 16px;
+            text-align: center;
+            z-index: 200;
+            display: none;
+            border: 2px solid var(--neon-primary);
+            font-family: var(--font-display);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 50px rgba(0, 245, 160, 0.3), inset 0 0 30px rgba(0, 245, 160, 0.1);
+        }
+
+        .game-message.show {
+            display: block;
+            animation: slideInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .game-message h3 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(0, 245, 160, 0.5);
+        }
+
+        .game-message p {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        @keyframes slideInScale {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                margin-top: 6rem;
+                padding: 1.5rem;
+            }
+
+            .game-title {
+                font-size: 2rem;
+            }
+
+            .game-canvas {
+                height: 400px;
+            }
+
+            .game-stats {
+                flex-wrap: wrap;
+            }
+
+            .stat {
+                flex: 0 1 calc(50% - 0.5rem);
+                padding: 0.8rem;
+            }
+
+            .stat-label {
+                font-size: 0.8rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .btn-game {
+                padding: 1rem;
+                font-size: 0.95rem;
+            }
+
+            .game-message h3 {
+                font-size: 1.8rem;
+            }
+
+            .game-message p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar glass" aria-label="Primary">
+        <div class="logo neon-glow">MINI-GAMES</div>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="index.html">Home</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='index.html'">Back</button>
+        </div>
+    </nav>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">🫧 Bubble Shooter</h1>
+            <div class="game-stats">
+                <div class="stat">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Level</div>
+                    <div class="stat-value" id="level">1</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Bubbles</div>
+                    <div class="stat-value" id="bubbleCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-canvas" id="gameCanvas">
+            <div class="game-message" id="gameMessage">
+                <h3 id="messageTitle">Game Over</h3>
+                <p id="messageText">Final Score: 0</p>
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <button class="btn-game btn-start" id="startBtn">🎮 Start Game</button>
+            <button class="btn-game btn-reset" id="resetBtn">↻ Reset</button>
+        </div>
+    </div>
+
+    <script src="style.css"></script>
+    <script>
+        // Professional Bubble Shooter Game with Real-time Physics
+        const gameCanvas = document.getElementById('gameCanvas');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const scoreDisplay = document.getElementById('score');
+        const levelDisplay = document.getElementById('level');
+        const bubbleCountDisplay = document.getElementById('bubbleCount');
+        const gameMessage = document.getElementById('gameMessage');
+        const themeToggle = document.getElementById('themeToggle');
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        // Game variables
+        let bubbles = [];
+        let score = 0;
+        let level = 1;
+        let gameRunning = false;
+        let combo = 0;
+        let comboTimeout = null;
+        let mouseX = 0;
+        let mouseY = 0;
+        const colors = ['color-1', 'color-2', 'color-3', 'color-4', 'color-5'];
+        const GRAVITY = 0.3;
+        const DANGER_ZONE = gameCanvas.clientHeight - 80; // Red danger zone
+
+        // Shooter position
+        const shooter = {
+            x: gameCanvas.clientWidth / 2,
+            y: gameCanvas.clientHeight - 50,
+            size: 25,
+            angle: 0
+        };
+
+        class Bubble {
+            constructor(x, y, size = 30, vx = 0, vy = 0) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.vx = vx || (Math.random() - 0.5) * 3;
+                this.vy = vy || -Math.random() * 1;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.element = null;
+                this.points = Math.floor(Math.random() * 50) + 10;
+                this.hovering = false;
+                this.hoverStart = null;
+                this.hoverThreshold = 0.5; // seconds to collect on hover
+            }
+
+            render() {
+                if (!this.element) {
+                    this.element = document.createElement('div');
+                    this.element.className = `bubble ${this.color}`;
+                    this.element.style.width = this.size * 2 + 'px';
+                    this.element.style.height = this.size * 2 + 'px';
+                    this.element.textContent = this.points;
+                    gameCanvas.appendChild(this.element);
+                }
+                this.element.style.left = this.x - this.size + 'px';
+                this.element.style.top = this.y - this.size + 'px';
+                
+                // Add danger zone highlight
+                if (this.y + this.size > DANGER_ZONE) {
+                    this.element.style.boxShadow = '0 0 20px rgba(255, 0, 0, 0.6), inset 0 0 10px rgba(255, 0, 0, 0.2)';
+                }
+            }
+
+            update() {
+                // Apply gravity
+                this.vy += GRAVITY;
+                
+                // Update position
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off walls
+                if (this.x - this.size < 0) {
+                    this.x = this.size;
+                    this.vx = Math.abs(this.vx) * 0.8;
+                } else if (this.x + this.size > gameCanvas.clientWidth) {
+                    this.x = gameCanvas.clientWidth - this.size;
+                    this.vx = -Math.abs(this.vx) * 0.8;
+                }
+
+                // Bounce off top
+                if (this.y - this.size < 0) {
+                    this.y = this.size;
+                    this.vy = Math.abs(this.vy) * 0.8;
+                }
+
+                // Check if reached danger zone (game over condition)
+                if (this.y + this.size > gameCanvas.clientHeight) {
+                    return false; // Bubble went off bottom
+                }
+
+                return true;
+            }
+
+            checkHover(mx, my) {
+                const dist = Math.sqrt((mx - this.x) ** 2 + (my - this.y) ** 2);
+                
+                if (dist < this.size) {
+                    if (!this.hovering) {
+                        this.hovering = true;
+                        this.hoverStart = Date.now();
+                        this.element.style.transform = 'scale(1.15)';
+                        this.element.style.boxShadow = '0 0 30px rgba(0, 255, 160, 0.8)';
+                    }
+                    
+                    // Check hover duration
+                    const hoverDuration = (Date.now() - this.hoverStart) / 1000;
+                    if (hoverDuration > this.hoverThreshold) {
+                        return true; // Collected
+                    }
+                } else {
+                    if (this.hovering) {
+                        this.hovering = false;
+                        this.element.style.transform = 'scale(1)';
+                        this.element.style.boxShadow = '0 0 15px rgba(0, 245, 160, 0.3)';
+                    }
+                }
+                return false;
+            }
+
+            remove() {
+                if (this.element) {
+                    this.element.remove();
+                }
+            }
+        }
+
+        function spawnBubbles() {
+            // Spawn from top
+            const bubblesPerWave = Math.min(3 + Math.floor(level / 2), 8);
+            for (let i = 0; i < bubblesPerWave; i++) {
+                const x = Math.random() * (gameCanvas.clientWidth - 100) + 50;
+                const y = -50; // Start from top
+                const vx = (Math.random() - 0.5) * 4;
+                const vy = Math.random() * 2 + 1; // Falling down
+                bubbles.push(new Bubble(x, y, 30, vx, vy));
+            }
+            bubbleCountDisplay.textContent = bubbles.length;
+        }
+
+        function createFloatingText(x, y, text, color = 'white') {
+            const floatingDiv = document.createElement('div');
+            floatingDiv.style.position = 'absolute';
+            floatingDiv.style.left = x + 'px';
+            floatingDiv.style.top = y + 'px';
+            floatingDiv.style.color = color;
+            floatingDiv.style.fontSize = '1.5rem';
+            floatingDiv.style.fontWeight = 'bold';
+            floatingDiv.style.pointerEvents = 'none';
+            floatingDiv.style.fontFamily = 'var(--font-display)';
+            floatingDiv.style.textShadow = '0 0 10px rgba(0, 0, 0, 0.8)';
+            floatingDiv.textContent = text;
+            gameCanvas.appendChild(floatingDiv);
+
+            let opacity = 1;
+            let offsetY = 0;
+            const animate = () => {
+                opacity -= 0.05;
+                offsetY -= 2;
+                floatingDiv.style.opacity = opacity;
+                floatingDiv.style.transform = `translateY(${offsetY}px)`;
+                
+                if (opacity > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    floatingDiv.remove();
+                }
+            };
+            animate();
+        }
+
+        function collectBubble(bubble) {
+            const points = bubble.points * (1 + combo * 0.1);
+            score += Math.floor(points);
+            scoreDisplay.textContent = score;
+            
+            // Combo system
+            combo++;
+            createFloatingText(bubble.x, bubble.y, `+${Math.floor(points)} x${combo}`, 'var(--neon-primary)');
+            
+            // Clear combo timeout
+            clearTimeout(comboTimeout);
+            comboTimeout = setTimeout(() => {
+                combo = 0;
+            }, 3000); // 3 second combo window
+
+            bubble.remove();
+            bubbles = bubbles.filter(b => b !== bubble);
+            bubbleCountDisplay.textContent = bubbles.length;
+        }
+
+        function updateGame() {
+            if (!gameRunning) return;
+
+            // Update bubbles
+            bubbles = bubbles.filter(bubble => {
+                const alive = bubble.update();
+                bubble.render();
+                
+                // Check hover collection
+                if (alive && bubble.checkHover(mouseX, mouseY)) {
+                    collectBubble(bubble);
+                    return false;
+                }
+
+                // Check if bubble reached danger zone (game over)
+                if (alive && bubble.y + bubble.size > DANGER_ZONE + 30) {
+                    endGame();
+                    return false;
+                }
+
+                return alive;
+            });
+
+            bubbleCountDisplay.textContent = bubbles.length;
+
+            // Spawn new bubbles periodically
+            if (bubbles.length < 5 + level) {
+                spawnBubbles();
+            }
+
+            requestAnimationFrame(updateGame);
+        }
+
+        function endGame() {
+            gameRunning = false;
+            gameMessage.querySelector('#messageTitle').textContent = '💥 Game Over!';
+            gameMessage.querySelector('#messageText').textContent = `Level: ${level} | Final Score: ${score}`;
+            gameMessage.classList.add('show');
+            startBtn.textContent = '🎮 Play Again';
+        }
+
+        function startGame() {
+            gameRunning = true;
+            gameMessage.classList.remove('show');
+            startBtn.textContent = '⏸ Pause Game';
+            combo = 0;
+            bubbles.forEach(b => b.remove());
+            bubbles = [];
+            spawnBubbles();
+            updateGame();
+        }
+
+        function resetGame() {
+            gameRunning = false;
+            score = 0;
+            level = 1;
+            combo = 0;
+            bubbles.forEach(bubble => bubble.remove());
+            bubbles = [];
+            scoreDisplay.textContent = '0';
+            levelDisplay.textContent = '1';
+            bubbleCountDisplay.textContent = '0';
+            gameMessage.classList.remove('show');
+            startBtn.textContent = '🎮 Start Game';
+            clearTimeout(comboTimeout);
+        }
+
+        // Mouse tracking
+        gameCanvas.addEventListener('mousemove', (e) => {
+            const rect = gameCanvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+
+            // Calculate angle to cursor
+            const dx = mouseX - shooter.x;
+            const dy = mouseY - shooter.y;
+            shooter.angle = Math.atan2(dy, dx) * (180 / Math.PI);
+        });
+
+        // Render game background with indicator
+        function renderGameCanvas() {
+            const angle = shooter.angle;
+            const gradient = `conic-gradient(from ${angle}deg at 50% ${(shooter.y / gameCanvas.clientHeight * 100).toFixed(1)}%, 
+                transparent 0deg 170deg, 
+                rgba(0, 255, 160, 0.15) 170deg 190deg, 
+                transparent 190deg 360deg), 
+                linear-gradient(to bottom, rgba(0, 245, 160, 0.05) 0%, rgba(255, 0, 0, 0.05) 85%, rgba(255, 0, 0, 0.2) 100%)`;
+            gameCanvas.style.background = gradient;
+        }
+
+        // Button events
+        startBtn.addEventListener('click', () => {
+            if (!gameRunning) {
+                startGame();
+            } else {
+                gameRunning = false;
+                startBtn.textContent = '▶ Resume Game';
+            }
+        });
+
+        resetBtn.addEventListener('click', resetGame);
+
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            themeToggle.textContent = document.body.classList.contains('light-theme') ? '☀️' : '🌙';
+        });
+
+        // Mobile nav toggle
+        navToggle.addEventListener('click', () => {
+            navMenu.parentElement.classList.toggle('open');
+        });
+
+        // Continuous rendering
+        setInterval(renderGameCanvas, 50);
+
+        // Hide loading screen
+        window.addEventListener('load', () => {
+            document.getElementById('loading').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
