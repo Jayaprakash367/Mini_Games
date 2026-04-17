@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Runner - MINI-GAMES</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .game-container {
+            max-width: 800px;
+            margin: 8rem auto 2rem;
+            padding: 2.5rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+        }
+        .game-title {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            background: linear-gradient(45deg, #ff7a00, #00f5a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+        .stat {
+            background: rgba(0, 245, 160, 0.1);
+            border: 2px solid var(--glass-border);
+            padding: 1.2rem;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #ff7a00;
+        }
+        canvas#gameCanvas {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(255, 122, 0, 0.1) 0%, rgba(0, 245, 160, 0.05) 100%);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            display: block;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+        .game-controls {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            border: 2px solid var(--neon-primary);
+            background: transparent;
+            color: var(--neon-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: var(--neon-primary);
+            color: black;
+        }
+        .game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .game-over-card {
+            background: var(--glass-bg);
+            border: 2px solid var(--neon-primary);
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+        }
+        .game-over-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .game-over-score {
+            font-size: 3rem;
+            color: #ff7a00;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar glass">
+        <div class="logo neon-glow">MINI-GAMES</div>
+        <a href="index.html" style="color: var(--text-primary); text-decoration: none; margin-left: auto;">← Back to Games</a>
+    </nav>
+
+    <div class="game-container">
+        <h1 class="game-title">NEON RUNNER</h1>
+        
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Lives</div>
+                <div class="stat-value" id="lives">3</div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="game-controls">
+            <p>Press SPACE or Click to Start • Use Arrow Keys or Mouse to Move</p>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" id="startBtn">Start Game</button>
+            <button class="btn" id="pauseBtn">Pause</button>
+            <button class="btn" id="restartBtn">Restart</button>
+        </div>
+    </div>
+
+    <div class="game-over-screen" id="gameOverScreen">
+        <div class="game-over-card">
+            <div class="game-over-title">GAME OVER</div>
+            <div class="game-over-score" id="finalScore">0</div>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">You made it far! Try again!</p>
+            <button class="btn" onclick="location.reload()" style="width: 100%; border-color: var(--neon-primary);">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Game variables
+        let gameRunning = false;
+        let gamePaused = false;
+        let gameOver = false;
+        let score = 0;
+        let level = 1;
+        let lives = 3;
+        let distance = 0;
+        let speed = 5;
+
+        // Player
+        const player = {
+            x: canvas.width / 2 - 15,
+            y: canvas.height - 60,
+            width: 30,
+            height: 40,
+            velocityY: 0,
+            isJumping: false,
+            isGrounded: true,
+            gravity: 0.6,
+            jumpPower: -12
+        };
+
+        // Obstacles
+        let obstacles = [];
+        let obstacleTimer = 0;
+        let obstacleFrequency = 120;
+
+        // Input handling
+        const keys = {};
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === ' ' && !gameRunning && !gamePaused && !gameOver) {
+                startGame();
+            }
+            if (e.key === 'p' && gameRunning) {
+                togglePause();
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        canvas.addEventListener('click', (e) => {
+            if (!gameRunning && !gamePaused && !gameOver) {
+                startGame();
+            }
+        });
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('restartBtn').addEventListener('click', () => location.reload());
+
+        function startGame() {
+            if (!gameRunning && !gamePaused && !gameOver) {
+                gameRunning = true;
+                gamePaused = false;
+                animate();
+            }
+        }
+
+        function togglePause() {
+            if (gameRunning && !gameOver) {
+                gamePaused = !gamePaused;
+            }
+        }
+
+        function updatePlayer() {
+            // Horizontal movement
+            if (keys['ArrowLeft']) {
+                player.x = Math.max(0, player.x - 7);
+            }
+            if (keys['ArrowRight']) {
+                player.x = Math.min(canvas.width - player.width, player.x + 7);
+            }
+
+            // Jumping
+            if (player.isGrounded && (keys[' '] || keys['ArrowUp'])) {
+                player.velocityY = player.jumpPower;
+                player.isJumping = true;
+                player.isGrounded = false;
+            }
+
+            // Gravity
+            player.velocityY += player.gravity;
+            player.y += player.velocityY;
+
+            // Ground collision
+            if (player.y + player.height >= canvas.height - 20) {
+                player.y = canvas.height - player.height - 20;
+                player.velocityY = 0;
+                player.isJumping = false;
+                player.isGrounded = true;
+            }
+
+            // Wall collision
+            player.x = Math.max(0, Math.min(player.x, canvas.width - player.width));
+        }
+
+        function spawnObstacle() {
+            const width = 60 + Math.random() * 40;
+            const height = 20 + Math.random() * 30;
+            obstacles.push({
+                x: Math.random() * (canvas.width - width),
+                y: -height,
+                width: width,
+                height: height,
+                passed: false
+            });
+        }
+
+        function updateObstacles() {
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obs = obstacles[i];
+                obs.y += speed;
+
+                // Check collision
+                if (checkCollision(player, obs)) {
+                    lives--;
+                    if (lives <= 0) {
+                        endGame();
+                    } else {
+                        player.y = 50;
+                    }
+                }
+
+                // Score on passing
+                if (obs.y > player.y && !obs.passed) {
+                    obs.passed = true;
+                    score += 10;
+                    distance += 10;
+                }
+
+                // Remove if off screen
+                if (obs.y > canvas.height) {
+                    obstacles.splice(i, 1);
+                }
+            }
+
+            // Spawn timing
+            obstacleTimer++;
+            if (obstacleTimer > obstacleFrequency) {
+                spawnObstacle();
+                obstacleTimer = 0;
+                obstacleFrequency = Math.max(60, obstacleFrequency - 2);
+                speed = Math.min(12, speed + 0.1);
+            }
+        }
+
+        function checkCollision(player, obstacle) {
+            return player.x < obstacle.x + obstacle.width &&
+                   player.x + player.width > obstacle.x &&
+                   player.y < obstacle.y + obstacle.height &&
+                   player.y + player.height > obstacle.y;
+        }
+
+        function drawPlayer() {
+            ctx.save();
+            ctx.fillStyle = '#00f5a0';
+            ctx.shadowColor = 'rgba(0, 245, 160, 0.8)';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.strokeStyle = '#ff7a00';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(player.x, player.y, player.width, player.height);
+            ctx.restore();
+        }
+
+        function drawObstacles() {
+            ctx.save();
+            obstacles.forEach(obs => {
+                ctx.fillStyle = '#ff7a00';
+                ctx.shadowColor = 'rgba(255, 122, 0, 0.8)';
+                ctx.shadowBlur = 15;
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(obs.x, obs.y, obs.width, obs.height);
+            });
+            ctx.restore();
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Grid effect
+            ctx.strokeStyle = 'rgba(0, 245, 160, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+        }
+
+        function endGame() {
+            gameOver = true;
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('lives').textContent = lives;
+            
+            if (distance % 100 === 0 && distance > 0) {
+                level = Math.floor(distance / 100) + 1;
+            }
+        }
+
+        function animate() {
+            if (!gameRunning) return;
+
+            drawBackground();
+
+            if (!gamePaused) {
+                updatePlayer();
+                updateObstacles();
+                updateUI();
+            }
+
+            drawObstacles();
+            drawPlayer();
+
+            if (gamePaused) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#00f5a0';
+                ctx.font = 'bold 48px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+            }
+
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>

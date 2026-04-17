@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Puzzle - MINI-GAMES</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .game-container {
+            max-width: 800px;
+            margin: 8rem auto 2rem;
+            padding: 2.5rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+        }
+        .game-title {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            background: linear-gradient(45deg, #ee5a6f, #ff1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+        .stat {
+            background: rgba(238, 90, 111, 0.1);
+            border: 2px solid var(--glass-border);
+            padding: 1.2rem;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #ee5a6f;
+        }
+        canvas#gameCanvas {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(238, 90, 111, 0.1) 0%, rgba(0, 245, 160, 0.05) 100%);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            display: block;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+        .game-controls {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            border: 2px solid #ee5a6f;
+            background: transparent;
+            color: #ee5a6f;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #ee5a6f;
+            color: black;
+        }
+        .game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .game-over-card {
+            background: var(--glass-bg);
+            border: 2px solid #ee5a6f;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+        }
+        .game-over-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .game-over-score {
+            font-size: 3rem;
+            color: #ee5a6f;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar glass">
+        <div class="logo neon-glow">MINI-GAMES</div>
+        <a href="index.html" style="color: var(--text-primary); text-decoration: none; margin-left: auto;">← Back to Games</a>
+    </nav>
+
+    <div class="game-container">
+        <h1 class="game-title">BLOCK PUZZLE</h1>
+        
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Lines</div>
+                <div class="stat-value" id="lines">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Best</div>
+                <div class="stat-value" id="best">0</div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="game-controls">
+            <p>Press SPACE or Click to Start • Click to Place Blocks • Complete Lines to Score</p>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" id="startBtn">Start Game</button>
+            <button class="btn" id="restartBtn">Restart</button>
+        </div>
+    </div>
+
+    <div class="game-over-screen" id="gameOverScreen">
+        <div class="game-over-card">
+            <div class="game-over-title">GAME OVER</div>
+            <div class="game-over-score" id="finalScore">0</div>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Complete more lines next time!</p>
+            <button class="btn" onclick="location.reload()" style="width: 100%; border-color: #ee5a6f;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const GRID_WIDTH = 6;
+        const GRID_HEIGHT = 6;
+        const CELL_SIZE = Math.min(canvas.width / (GRID_WIDTH + 2), canvas.height / (GRID_HEIGHT + 3));
+        const OFFSET_X = (canvas.width - GRID_WIDTH * CELL_SIZE) / 2;
+        const OFFSET_Y = (canvas.height - GRID_HEIGHT * CELL_SIZE) / 2;
+
+        let gameRunning = false;
+        let gameOver = false;
+        let score = 0;
+        let lines = 0;
+        let bestScore = localStorage.getItem('blockPuzzleBest') || 0;
+        let grid = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(0));
+        let selectedBlock = null;
+        let nextBlocks = [];
+        let draggedBlock = null;
+
+        const blockShapes = [
+            [[1]],
+            [[1, 1]],
+            [[1], [1]],
+            [[1, 1], [1, 1]],
+            [[1, 1, 1]],
+            [[1, 1, 1, 1]],
+            [[1, 0], [1, 1]]
+        ];
+
+        const blockColors = ['#ee5a6f', '#00f5a0', '#49cdfa', '#a88fde', '#ff7a00', '#ff1493'];
+
+        function generateBlock() {
+            const shape = blockShapes[Math.floor(Math.random() * blockShapes.length)];
+            const color = blockColors[Math.floor(Math.random() * blockColors.length)];
+            return { shape, color, placed: false };
+        }
+
+        function canPlaceBlock(shape, startRow, startCol) {
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c] === 1) {
+                        const row = startRow + r;
+                        const col = startCol + c;
+                        if (row >= GRID_HEIGHT || col >= GRID_WIDTH || grid[row][col] !== 0) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        function placeBlock(shape, startRow, startCol, color) {
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c] === 1) {
+                        grid[startRow + r][startCol + c] = color;
+                    }
+                }
+            }
+        }
+
+        function checkLines() {
+            let clearedLines = 0;
+            for (let r = 0; r < GRID_HEIGHT; r++) {
+                if (grid[r].every(cell => cell !== 0)) {
+                    grid.splice(r, 1);
+                    grid.unshift(Array(GRID_WIDTH).fill(0));
+                    clearedLines++;
+                }
+            }
+            return clearedLines;
+        }
+
+        canvas.addEventListener('click', (e) => {
+            if (!gameRunning && !gameOver) {
+                startGame();
+                return;
+            }
+
+            if (!gameRunning) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (selectedBlock !== null && nextBlocks[selectedBlock]) {
+                const block = nextBlocks[selectedBlock];
+                const col = Math.floor((x - OFFSET_X) / CELL_SIZE);
+                const row = Math.floor((y - OFFSET_Y) / CELL_SIZE);
+
+                if (row >= 0 && col >= 0 && canPlaceBlock(block.shape, row, col)) {
+                    placeBlock(block.shape, row, col, block.color);
+                    nextBlocks.splice(selectedBlock, 1);
+                    selectedBlock = null;
+                    score += 10;
+
+                    const clearedLines = checkLines();
+                    if (clearedLines > 0) {
+                        score += clearedLines * 50;
+                        lines += clearedLines;
+                    }
+
+                    if (nextBlocks.length < 3) {
+                        nextBlocks.push(generateBlock());
+                    }
+
+                    checkGameOver();
+                }
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === ' ' && !gameRunning && !gameOver) startGame();
+        });
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', () => location.reload());
+
+        function startGame() {
+            gameRunning = true;
+            gameOver = false;
+            score = 0;
+            lines = 0;
+            grid = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(0));
+            nextBlocks = [generateBlock(), generateBlock(), generateBlock()];
+            selectedBlock = null;
+            animate();
+        }
+
+        function checkGameOver() {
+            let canPlace = false;
+            for (let b = 0; b < nextBlocks.length; b++) {
+                for (let r = 0; r < GRID_HEIGHT && !canPlace; r++) {
+                    for (let c = 0; c < GRID_WIDTH && !canPlace; c++) {
+                        if (canPlaceBlock(nextBlocks[b].shape, r, c)) {
+                            canPlace = true;
+                        }
+                    }
+                }
+            }
+            if (!canPlace) {
+                endGame();
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid background
+            ctx.fillStyle = 'rgba(238, 90, 111, 0.1)';
+            ctx.fillRect(OFFSET_X, OFFSET_Y, GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE);
+
+            // Grid lines
+            ctx.strokeStyle = 'rgba(238, 90, 111, 0.3)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= GRID_WIDTH; i++) {
+                ctx.beginPath();
+                ctx.moveTo(OFFSET_X + i * CELL_SIZE, OFFSET_Y);
+                ctx.lineTo(OFFSET_X + i * CELL_SIZE, OFFSET_Y + GRID_HEIGHT * CELL_SIZE);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= GRID_HEIGHT; i++) {
+                ctx.beginPath();
+                ctx.moveTo(OFFSET_X, OFFSET_Y + i * CELL_SIZE);
+                ctx.lineTo(OFFSET_X + GRID_WIDTH * CELL_SIZE, OFFSET_Y + i * CELL_SIZE);
+                ctx.stroke();
+            }
+
+            // Draw cells
+            for (let r = 0; r < GRID_HEIGHT; r++) {
+                for (let c = 0; c < GRID_WIDTH; c++) {
+                    if (grid[r][c] !== 0) {
+                        ctx.fillStyle = grid[r][c];
+                        ctx.shadowColor = 'rgba(238, 90, 111, 0.8)';
+                        ctx.shadowBlur = 10;
+                        ctx.fillRect(OFFSET_X + c * CELL_SIZE + 2, OFFSET_Y + r * CELL_SIZE + 2,
+                                    CELL_SIZE - 4, CELL_SIZE - 4);
+                        ctx.shadowColor = 'transparent';
+                    }
+                }
+            }
+
+            // Draw next blocks
+            let blockY = OFFSET_Y + GRID_HEIGHT * CELL_SIZE + 20;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '14px Arial';
+            ctx.fillText('Next Blocks:', OFFSET_X, blockY);
+
+            nextBlocks.forEach((block, idx) => {
+                blockY += 30;
+                const blockX = OFFSET_X;
+                const isSelected = selectedBlock === idx;
+                
+                ctx.fillStyle = isSelected ? 'rgba(238, 90, 111, 0.3)' : 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(blockX, blockY, CELL_SIZE * 4, CELL_SIZE);
+                
+                ctx.fillStyle = block.color;
+                for (let r = 0; r < block.shape.length; r++) {
+                    for (let c = 0; c < block.shape[r].length; c++) {
+                        if (block.shape[r][c] === 1) {
+                            ctx.fillRect(blockX + c * CELL_SIZE, blockY + r * CELL_SIZE, CELL_SIZE - 2, CELL_SIZE - 2);
+                        }
+                    }
+                }
+
+                // Click area
+                canvas.style.cursor = 'pointer';
+            });
+        }
+
+        function endGame() {
+            gameRunning = false;
+            gameOver = true;
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('blockPuzzleBest', bestScore);
+            }
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('lines').textContent = lines;
+            document.getElementById('best').textContent = bestScore;
+        }
+
+        function animate() {
+            if (!gameRunning) return;
+
+            draw();
+            updateUI();
+
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>

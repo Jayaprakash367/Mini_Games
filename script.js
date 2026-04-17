@@ -201,5 +201,218 @@ if (statsSection) {
     statsObserver.observe(statsSection);
 }
 
+// Poki.com-style Games Platform Functionality
+
+// Games Data - Poki.com style small games
+const gamesData = [
+  {
+    id: 1,
+    title: 'Bubble Shooter',
+    category: 'puzzle',
+    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMDBmNWEwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5CVVdieCBSU0hPT1RFUjwvdGV4dD48L3N2Zz4=',
+    description: 'Pop colorful bubbles before they reach the danger zone!',
+    url: 'Game.html',
+    rating: 4.8,
+    plays: '1.2M'
+  },
+  {
+    id: 2,
+    title: 'Neon Runner',
+    category: 'action',
+    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmY3YTAwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZjVhMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5FT05SVU5ORVI8L3RleHQ+PC9zdmc+',
+    description: 'Dash through neon obstacles!',
+    url: 'neon-runner.html',
+    rating: 4.5,
+    plays: '892K'
+  },
+  {
+    id: 3,
+    title: 'Pixel Jump',
+    category: 'arcade',
+    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNDljZGZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZjVhMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlBJWEVMIEpVTVA8L3RleHQ+PC9zdmc+',
+    description: 'Jump, jump, jump!',
+    url: 'pixel-jump.html',
+    rating: 4.7,
+    plays: '2.1M'
+  },
+  {
+    id: 4,
+    title: 'Space Defender',
+    category: 'shooter',
+    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMkRkNGZmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlNQSUMUgREUGRU5ERVI8L3RleHQ+PC9zdmc+',
+    description: 'Protect the galaxy!',
+    url: 'space-defender.html',
+    rating: 4.9,
+    plays: '1.8M'
+  },
+  {
+    id: 5,
+    title: 'Maze Runner',
+    category: 'puzzle',
+    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjYTg4ZmRlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk1BWkUgUlVOTkVSPC90ZXh0Pjwvc3ZnPg==',
+    description: 'Find your way out!',
+    url: 'maze-runner.html',
+    rating: 4.3,
+    plays: '756K'
+  },
+  {
+    id: 6,
+    title: 'Fruit Slice',
+    category: 'arcade',
+    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmY2YjZiIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkZSVUlUIFNM aUNFPS90ZXh0Pjwvc3ZnPg==',
+    description: 'Slice the fruits!',
+    url: 'fruit-slice.html',
+    rating: 4.6,
+    plays: '1.5M'
+  },
+  {
+    id: 7,
+    title: 'Block Puzzle',
+    category: 'puzzle',
+    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZWU1YTZmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkJMT0NLIFBVWlRMRTwvdGV4dD48L3N2Zz4=',
+    description: 'Fit all blocks!',
+    url: 'block-puzzle.html',
+    rating: 4.4,
+    plays: '980K'
+  },
+  {
+    id: 8,
+    title: 'Rocket Dodge',
+    category: 'action',
+    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNDhlY2ZmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlJPQ0tFVCBET0RHRTwvdGV4dD48L3N2Zz4=',
+    description: 'Dodge incoming rockets!',
+    url: 'rocket-dodge.html',
+    rating: 4.7,
+    plays: '2.3M'
+  }
+];
+
+// Initialize Games Grid when DOM loaded
+document.addEventListener('DOMContentLoaded', initGamesPlatform);
+
+function initGamesPlatform() {
+  renderGames(gamesData);
+  setupEventListeners();
+}
+
+function setupEventListeners() {
+  // Category filters
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const category = e.currentTarget.dataset.category;
+      filterGames(category);
+      updateActiveCategory(e.currentTarget);
+    });
+  });
+
+  // Search
+  const searchInput = document.getElementById('gamesSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', debounce(handleSearch, 300));
+  }
+
+  // Hero CTA scroll to games
+  document.querySelectorAll('.hero .btn-primary').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('gamesSection')?.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+}
+
+function renderGames(games) {
+  const container = document.getElementById('gamesGrid');
+  if (!container) return;
+
+  container.innerHTML = games.map(game => `
+    <article class="game-card" data-category="${game.category}" data-title="${game.title.toLowerCase()}">
+      <div class="game-thumb" style="background-image: url(${game.thumbnail})">
+        <div class="game-overlay">
+          <div class="game-info">
+            <h3 class="game-title">${game.title}</h3>
+            <div class="game-rating">⭐ ${game.rating}</div>
+            <div class="game-plays">${game.plays} plays</div>
+          </div>
+          <button class="btn-play" data-url="${game.url}">
+            <span>▶ PLAY</span>
+          </button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+
+  // Add play button handlers
+  document.querySelectorAll('.btn-play').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const url = e.currentTarget.dataset.url;
+      if (url === '#') {
+        alert('Game coming soon! 🎮');
+      } else {
+        window.location.href = url;
+      }
+    });
+  });
+
+  // Masonry layout
+  setTimeout(masonryLayout, 100);
+}
+
+function filterGames(category) {
+  let filteredGames;
+  if (category === 'all') {
+    filteredGames = gamesData;
+  } else {
+    filteredGames = gamesData.filter(game => game.category === category);
+  }
+  renderGames(filteredGames);
+}
+
+function handleSearch(query) {
+  const filtered = gamesData.filter(game => 
+    game.title.toLowerCase().includes(query.toLowerCase()) ||
+    game.description.toLowerCase().includes(query.toLowerCase())
+  );
+  renderGames(filtered);
+}
+
+function updateActiveCategory(activeBtn) {
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  activeBtn.classList.add('active');
+}
+
+function masonryLayout() {
+  const cards = document.querySelectorAll('.game-card');
+  const grid = document.getElementById('gamesGrid');
+  if (!grid || cards.length === 0) return;
+
+  cards.forEach(card => {
+    card.style.height = 'auto';
+  });
+
+  const rowHeight = 320; // Approx card height
+  const colCount = getComputedStyle(grid).getPropertyValue('grid-template-columns').split(' ').length;
+  const rowGap = parseInt(getComputedStyle(grid).getPropertyValue('gap'));
+
+  // Simple masonry - can enhance with more sophisticated algo
+  let shortestCol = 0;
+  cards.forEach((card, index) => {
+    card.style.gridRowEnd = `span ${Math.ceil(Math.random() * 2 + 1)}`; // Vary heights
+  });
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
 // Performance optimized mouse trail (optional enhancement)
+
 

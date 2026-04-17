@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Jump - MINI-GAMES</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .game-container {
+            max-width: 800px;
+            margin: 8rem auto 2rem;
+            padding: 2.5rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+        }
+        .game-title {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            background: linear-gradient(45deg, #49cdfa, #00f5a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+        .stat {
+            background: rgba(73, 205, 250, 0.1);
+            border: 2px solid var(--glass-border);
+            padding: 1.2rem;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #49cdfa;
+        }
+        canvas#gameCanvas {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(73, 205, 250, 0.1) 0%, rgba(0, 245, 160, 0.05) 100%);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            display: block;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+        .game-controls {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            border: 2px solid #49cdfa;
+            background: transparent;
+            color: #49cdfa;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #49cdfa;
+            color: black;
+        }
+        .game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .game-over-card {
+            background: var(--glass-bg);
+            border: 2px solid #49cdfa;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+        }
+        .game-over-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .game-over-score {
+            font-size: 3rem;
+            color: #49cdfa;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar glass">
+        <div class="logo neon-glow">MINI-GAMES</div>
+        <a href="index.html" style="color: var(--text-primary); text-decoration: none; margin-left: auto;">← Back to Games</a>
+    </nav>
+
+    <div class="game-container">
+        <h1 class="game-title">PIXEL JUMP</h1>
+        
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Height</div>
+                <div class="stat-value" id="height">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Best</div>
+                <div class="stat-value" id="best">0</div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="game-controls">
+            <p>Press SPACE or Click to Start • Use Arrow Keys to Move Left/Right</p>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" id="startBtn">Start Game</button>
+            <button class="btn" id="restartBtn">Restart</button>
+        </div>
+    </div>
+
+    <div class="game-over-screen" id="gameOverScreen">
+        <div class="game-over-card">
+            <div class="game-over-title">GAME OVER</div>
+            <div class="game-over-score" id="finalScore">0</div>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">How high can you jump?</p>
+            <button class="btn" onclick="location.reload()" style="width: 100%; border-color: #49cdfa;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        let gameRunning = false;
+        let gameOver = false;
+        let score = 0;
+        let bestScore = localStorage.getItem('pixelJumpBest') || 0;
+        let cameraY = 0;
+
+        const player = {
+            x: canvas.width / 2 - 15,
+            y: canvas.height - 100,
+            width: 30,
+            height: 30,
+            velocityY: 0,
+            velocityX: 0,
+            gravity: 0.4,
+            jumpPower: -10,
+            friction: 0.85
+        };
+
+        let platforms = [];
+        let particles = [];
+        let scrollOffset = 0;
+
+        const keys = {};
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === ' ' && !gameRunning && !gameOver) startGame();
+        });
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        canvas.addEventListener('click', () => {
+            if (!gameRunning && !gameOver) startGame();
+        });
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', () => location.reload());
+
+        function startGame() {
+            gameRunning = true;
+            gameOver = false;
+            initPlatforms();
+            animate();
+        }
+
+        function initPlatforms() {
+            platforms = [];
+            for (let i = 0; i < 8; i++) {
+                platforms.push({
+                    x: Math.random() * (canvas.width - 60),
+                    y: canvas.height - i * 80 - 100,
+                    width: 60,
+                    height: 12,
+                    vx: Math.random() * 2 - 1
+                });
+            }
+        }
+
+        function updatePlayer() {
+            if (keys['ArrowLeft']) player.x -= 6;
+            if (keys['ArrowRight']) player.x += 6;
+
+            player.x = Math.max(0, Math.min(player.x, canvas.width - player.width));
+            if (player.x < 0) player.x = canvas.width;
+            if (player.x > canvas.width) player.x = 0;
+
+            player.velocityY += player.gravity;
+            player.y += player.velocityY;
+
+            // Platform collision
+            platforms.forEach(p => {
+                if (player.velocityY > 0 &&
+                    player.y + player.height <= p.y + p.height &&
+                    player.y + player.height + player.velocityY >= p.y &&
+                    player.x + player.width > p.x &&
+                    player.x < p.x + p.width) {
+                    player.velocityY = -12;
+                    score += 10;
+                }
+            });
+
+            if (player.y > canvas.height) {
+                endGame();
+            }
+        }
+
+        function updatePlatforms() {
+            platforms.forEach(p => {
+                p.x += p.vx;
+                if (p.x < 0 || p.x + p.width > canvas.width) {
+                    p.vx *= -1;
+                }
+            });
+
+            if (platforms[platforms.length - 1].y > cameraY + canvas.height) {
+                platforms.push({
+                    x: Math.random() * (canvas.width - 60),
+                    y: platforms[0].y - 80,
+                    width: 60,
+                    height: 12,
+                    vx: Math.random() * 2 - 1
+                });
+                platforms.shift();
+            }
+
+            cameraY = Math.max(cameraY, player.y - canvas.height * 0.5);
+        }
+
+        function draw() {
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid
+            ctx.strokeStyle = 'rgba(73, 205, 250, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+
+            // Platforms
+            platforms.forEach(p => {
+                const screenY = p.y - cameraY;
+                if (screenY > -20 && screenY < canvas.height + 20) {
+                    ctx.fillStyle = '#49cdfa';
+                    ctx.shadowColor = 'rgba(73, 205, 250, 0.8)';
+                    ctx.shadowBlur = 10;
+                    ctx.fillRect(p.x, screenY, p.width, p.height);
+                    ctx.shadowColor = 'transparent';
+                }
+            });
+
+            // Player
+            const playerScreenY = player.y - cameraY;
+            ctx.fillStyle = '#00f5a0';
+            ctx.shadowColor = 'rgba(0, 245, 160, 0.8)';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(player.x, playerScreenY, player.width, player.height);
+            ctx.strokeStyle = '#49cdfa';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(player.x, playerScreenY, player.width, player.height);
+        }
+
+        function endGame() {
+            gameRunning = false;
+            gameOver = true;
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('pixelJumpBest', bestScore);
+            }
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('height').textContent = Math.floor(Math.max(0, (canvas.height - player.y) / 10));
+            document.getElementById('best').textContent = bestScore;
+        }
+
+        function animate() {
+            if (!gameRunning) return;
+
+            updatePlayer();
+            updatePlatforms();
+            updateUI();
+            draw();
+
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>

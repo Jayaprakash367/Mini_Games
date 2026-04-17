@@ -49,6 +49,40 @@
     
 
 
+    <!-- Games Section - Poki.com Style -->
+    <section id="gamesSection" class="games-section">
+        <div class="container">
+            <div class="section-head">
+                <h2 class="section-title">Featured Games</h2>
+                <p class="section-subtitle">Play the best free online games!</p>
+            </div>
+            
+            <!-- Search & Categories -->
+            <div class="games-header">
+                <div class="search-container glass">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none">
+                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                        <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input type="text" id="gamesSearch" placeholder="Search games...">
+                </div>
+                
+                <div class="categories">
+                    <button class="category-btn active" data-category="all">All</button>
+                    <button class="category-btn" data-category="action">Action</button>
+                    <button class="category-btn" data-category="puzzle">Puzzle</button>
+                    <button class="category-btn" data-category="arcade">Arcade</button>
+                    <button class="category-btn" data-category="shooter">Shooter</button>
+                </div>
+            </div>
+            
+            <!-- Games Grid -->
+            <div class="games-grid" id="gamesGrid">
+                <!-- Games rendered by JS -->
+            </div>
+        </div>
+    </section>
+
     <!-- Newsletter -->
     <section class="newsletter">
         <div class="newsletter-card glass">

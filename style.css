@@ -563,3 +563,211 @@ section {
   max-width: 640px;
   margin: 0 auto;
 }
+
+/* Poki.com-style Games Section */
+.games-section {
+  padding: 8rem 5% 5rem;
+  background: linear-gradient(180deg, rgba(11,12,20,0.95) 0%, var(--bg-secondary) 100%);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.games-header {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.search-container {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-radius: 50px;
+  gap: 1rem;
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+}
+
+#gamesSearch {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+}
+
+#gamesSearch::placeholder {
+  color: var(--text-secondary);
+}
+
+.categories {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.category-btn {
+  padding: 0.8rem 1.8rem;
+  border: 2px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--text-secondary);
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-family: var(--font-body);
+}
+
+.category-btn:hover,
+.category-btn.active {
+  background: linear-gradient(45deg, var(--neon-primary), var(--neon-accent));
+  color: var(--bg-primary);
+  border-color: var(--neon-primary);
+  box-shadow: 0 0 20px rgba(0, 245, 160, 0.4);
+  transform: translateY(-2px);
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Game Cards - Poki.com Style */
+.game-card {
+  background: var(--glass-bg);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all var(--transition-smooth);
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  position: relative;
+}
+
+.game-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: var(--shadow-strong), 0 0 40px rgba(0, 245, 160, 0.3);
+  border-color: var(--neon-primary);
+}
+
+.game-thumb {
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, 
+    rgba(0,0,0,0.1) 0%, 
+    rgba(0,0,0,0.85) 50%,
+    rgba(0,0,0,0.95) 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  opacity: 0;
+  transition: opacity var(--transition-smooth);
+}
+
+.game-card:hover .game-overlay {
+  opacity: 1;
+}
+
+.game-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.game-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.game-rating,
+.game-plays {
+  font-size: 0.9rem;
+  color: var(--neon-primary);
+  font-weight: 600;
+}
+
+.btn-play {
+  background: linear-gradient(45deg, var(--neon-primary), var(--neon-accent));
+  color: var(--bg-primary) !important;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  align-self: flex-start;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 5px 15px rgba(0, 245, 160, 0.4);
+}
+
+.btn-play:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 245, 160, 0.6);
+}
+
+.btn-play span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .games-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-container {
+    min-width: auto;
+    max-width: none;
+  }
+  
+  .games-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .game-thumb {
+    height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

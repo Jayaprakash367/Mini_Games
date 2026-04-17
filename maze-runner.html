@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Runner - MINI-GAMES</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .game-container {
+            max-width: 800px;
+            margin: 8rem auto 2rem;
+            padding: 2.5rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+        }
+        .game-title {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            background: linear-gradient(45deg, #a88fde, #00f5a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+        .stat {
+            background: rgba(168, 143, 222, 0.1);
+            border: 2px solid var(--glass-border);
+            padding: 1.2rem;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #a88fde;
+        }
+        canvas#gameCanvas {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(168, 143, 222, 0.1) 0%, rgba(0, 245, 160, 0.05) 100%);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            display: block;
+            margin-bottom: 1.5rem;
+            cursor: crosshair;
+        }
+        .game-controls {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            border: 2px solid #a88fde;
+            background: transparent;
+            color: #a88fde;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #a88fde;
+            color: black;
+        }
+        .game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .game-over-card {
+            background: var(--glass-bg);
+            border: 2px solid #a88fde;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+        }
+        .game-over-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .game-over-score {
+            font-size: 3rem;
+            color: #a88fde;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar glass">
+        <div class="logo neon-glow">MINI-GAMES</div>
+        <a href="index.html" style="color: var(--text-primary); text-decoration: none; margin-left: auto;">← Back to Games</a>
+    </nav>
+
+    <div class="game-container">
+        <h1 class="game-title">MAZE RUNNER</h1>
+        
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Time</div>
+                <div class="stat-value" id="time">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Best</div>
+                <div class="stat-value" id="best">-</div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="game-controls">
+            <p>Press SPACE or Click to Start • Use Arrow Keys to Navigate • Find the Exit</p>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" id="startBtn">Start Game</button>
+            <button class="btn" id="restartBtn">Restart</button>
+        </div>
+    </div>
+
+    <div class="game-over-screen" id="gameOverScreen">
+        <div class="game-over-card">
+            <div class="game-over-title" id="gameOverTitle">LEVEL COMPLETE!</div>
+            <div class="game-over-score" id="finalScore">0</div>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">You escaped the maze!</p>
+            <button class="btn" onclick="location.reload()" style="width: 100%; border-color: #a88fde;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        let gameRunning = false;
+        let gameOver = false;
+        let level = 1;
+        let time = 0;
+        let cellSize = 30;
+
+        const player = {
+            gridX: 1,
+            gridY: 1,
+            size: 0.3
+        };
+
+        let maze = [];
+        let exit = {};
+        let collectibles = [];
+
+        function generateMaze(width, height) {
+            const w = width;
+            const h = height;
+            const maze = Array(h).fill(null).map(() => Array(w).fill(1));
+
+            function carve(x, y) {
+                maze[y][x] = 0;
+                const dirs = [[0, -2], [2, 0], [0, 2], [-2, 0]].sort(() => Math.random() - 0.5);
+                
+                for (const [dx, dy] of dirs) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx > 0 && nx < w - 1 && ny > 0 && ny < h - 1 && maze[ny][nx] === 1) {
+                        maze[y + dy / 2][x + dx / 2] = 0;
+                        carve(nx, ny);
+                    }
+                }
+            }
+
+            carve(1, 1);
+            return maze;
+        }
+
+        function initLevel() {
+            const mazeWidth = Math.floor(canvas.width / cellSize);
+            const mazeHeight = Math.floor(canvas.height / cellSize);
+            maze = generateMaze(mazeWidth, mazeHeight);
+            
+            player.gridX = 1;
+            player.gridY = 1;
+            
+            exit.gridX = mazeWidth - 2;
+            exit.gridY = mazeHeight - 2;
+            
+            collectibles = [];
+            for (let i = 0; i < 3; i++) {
+                let x, y;
+                do {
+                    x = Math.floor(Math.random() * (mazeWidth - 2)) + 1;
+                    y = Math.floor(Math.random() * (mazeHeight - 2)) + 1;
+                } while (maze[y][x] === 1 || (x === exit.gridX && y === exit.gridY));
+                collectibles.push({ gridX: x, gridY: y, collected: false });
+            }
+        }
+
+        const keys = {};
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === ' ' && !gameRunning && !gameOver) startGame();
+        });
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        canvas.addEventListener('click', () => {
+            if (!gameRunning && !gameOver) startGame();
+        });
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', () => location.reload());
+
+        function startGame() {
+            gameRunning = true;
+            gameOver = false;
+            initLevel();
+            time = 0;
+            animate();
+        }
+
+        function updatePlayer() {
+            let newX = player.gridX;
+            let newY = player.gridY;
+
+            if (keys['ArrowUp']) newY--;
+            if (keys['ArrowDown']) newY++;
+            if (keys['ArrowLeft']) newX--;
+            if (keys['ArrowRight']) newX++;
+
+            if (newX >= 0 && newX < maze[0].length && newY >= 0 && newY < maze.length && maze[newY][newX] === 0) {
+                player.gridX = newX;
+                player.gridY = newY;
+            }
+
+            // Check exit
+            if (player.gridX === exit.gridX && player.gridY === exit.gridY) {
+                level++;
+                document.getElementById('gameOverTitle').textContent = `LEVEL ${level - 1} COMPLETE!`;
+                document.getElementById('finalScore').textContent = time + 's';
+                document.getElementById('gameOverScreen').style.display = 'flex';
+                gameRunning = false;
+                gameOver = true;
+            }
+
+            // Check collectibles
+            collectibles.forEach(c => {
+                if (!c.collected && c.gridX === player.gridX && c.gridY === player.gridY) {
+                    c.collected = true;
+                }
+            });
+        }
+
+        function draw() {
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw maze
+            for (let y = 0; y < maze.length; y++) {
+                for (let x = 0; x < maze[0].length; x++) {
+                    if (maze[y][x] === 1) {
+                        ctx.fillStyle = '#a88fde';
+                        ctx.shadowColor = 'rgba(168, 143, 222, 0.5)';
+                        ctx.shadowBlur = 8;
+                        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                        ctx.shadowColor = 'transparent';
+                    }
+                }
+            }
+
+            // Draw collectibles
+            collectibles.forEach(c => {
+                if (!c.collected) {
+                    ctx.fillStyle = '#00f5a0';
+                    ctx.shadowColor = 'rgba(0, 245, 160, 0.8)';
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.arc(c.gridX * cellSize + cellSize / 2, c.gridY * cellSize + cellSize / 2, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+
+            // Draw exit
+            ctx.fillStyle = '#ff0000';
+            ctx.shadowColor = 'rgba(255, 0, 0, 0.8)';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(exit.gridX * cellSize, exit.gridY * cellSize, cellSize, cellSize);
+            ctx.shadowColor = 'transparent';
+
+            // Draw player
+            ctx.fillStyle = '#a88fde';
+            ctx.shadowColor = 'rgba(168, 143, 222, 0.8)';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(player.gridX * cellSize + cellSize / 2, player.gridY * cellSize + cellSize / 2, cellSize * player.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function updateUI() {
+            document.getElementById('level').textContent = level;
+            document.getElementById('time').textContent = Math.floor(time);
+        }
+
+        function animate() {
+            if (!gameRunning) return;
+
+            time += 0.016;
+            updatePlayer();
+            updateUI();
+            draw();
+
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>

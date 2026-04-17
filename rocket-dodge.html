@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket Dodge - MINI-GAMES</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .game-container {
+            max-width: 800px;
+            margin: 8rem auto 2rem;
+            padding: 2.5rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+        }
+        .game-title {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            background: linear-gradient(45deg, #48ecff, #00f5a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+        .stat {
+            background: rgba(72, 236, 255, 0.1);
+            border: 2px solid var(--glass-border);
+            padding: 1.2rem;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #48ecff;
+        }
+        canvas#gameCanvas {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(72, 236, 255, 0.1) 0%, rgba(0, 245, 160, 0.05) 100%);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            display: block;
+            margin-bottom: 1.5rem;
+            cursor: crosshair;
+        }
+        .game-controls {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            border: 2px solid #48ecff;
+            background: transparent;
+            color: #48ecff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #48ecff;
+            color: black;
+        }
+        .game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .game-over-card {
+            background: var(--glass-bg);
+            border: 2px solid #48ecff;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+        }
+        .game-over-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .game-over-score {
+            font-size: 3rem;
+            color: #48ecff;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar glass">
+        <div class="logo neon-glow">MINI-GAMES</div>
+        <a href="index.html" style="color: var(--text-primary); text-decoration: none; margin-left: auto;">← Back to Games</a>
+    </nav>
+
+    <div class="game-container">
+        <h1 class="game-title">ROCKET DODGE</h1>
+        
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Dodged</div>
+                <div class="stat-value" id="dodged">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Best</div>
+                <div class="stat-value" id="best">0</div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="game-controls">
+            <p>Press SPACE or Click to Start • Use Mouse to Move • Dodge the Rockets!</p>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" id="startBtn">Start Game</button>
+            <button class="btn" id="pauseBtn">Pause</button>
+            <button class="btn" id="restartBtn">Restart</button>
+        </div>
+    </div>
+
+    <div class="game-over-screen" id="gameOverScreen">
+        <div class="game-over-card">
+            <div class="game-over-title">GAME OVER</div>
+            <div class="game-over-score" id="finalScore">0</div>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Great dodging!</p>
+            <button class="btn" onclick="location.reload()" style="width: 100%; border-color: #48ecff;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        let gameRunning = false;
+        let gamePaused = false;
+        let gameOver = false;
+        let score = 0;
+        let dodged = 0;
+        let bestScore = localStorage.getItem('rocketDodgeBest') || 0;
+
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height - 30,
+            radius: 15,
+            vx: 0,
+            maxSpeed: 7
+        };
+
+        let rockets = [];
+        let particles = [];
+        let rocketSpawnTimer = 0;
+        let rocketFrequency = 80;
+        let difficultyTimer = 0;
+
+        function Rocket(x, y, vx, vy) {
+            this.x = x;
+            this.y = y;
+            this.vx = vx;
+            this.vy = vy;
+            this.width = 20;
+            this.height = 30;
+            this.passed = false;
+        }
+
+        Rocket.prototype.update = function() {
+            this.x += this.vx;
+            this.y += this.vy;
+        };
+
+        Rocket.prototype.draw = function(ctx) {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            const angle = Math.atan2(this.vy, this.vx);
+            ctx.rotate(angle);
+
+            ctx.fillStyle = '#ff6b9d';
+            ctx.shadowColor = 'rgba(255, 107, 157, 0.8)';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.moveTo(15, 0);
+            ctx.lineTo(-10, -10);
+            ctx.lineTo(-10, 10);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#ffff00';
+            ctx.fillRect(-15, -5, 10, 10);
+
+            ctx.restore();
+        };
+
+        const keys = {};
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height - 30;
+
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === ' ' && !gameRunning && !gamePaused && !gameOver) startGame();
+            if (e.key === 'p' && gameRunning) togglePause();
+        });
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('click', () => {
+            if (!gameRunning && !gamePaused && !gameOver) startGame();
+        });
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('restartBtn').addEventListener('click', () => location.reload());
+
+        function startGame() {
+            gameRunning = true;
+            gamePaused = false;
+            gameOver = false;
+            score = 0;
+            dodged = 0;
+            rockets = [];
+            rocketFrequency = 80;
+            animate();
+        }
+
+        function togglePause() {
+            if (gameRunning && !gameOver) {
+                gamePaused = !gamePaused;
+            }
+        }
+
+        function updatePlayer() {
+            // Mouse follow
+            const targetX = mouseX;
+            const diff = targetX - player.x;
+            player.vx = Math.max(-player.maxSpeed, Math.min(player.maxSpeed, diff * 0.1));
+            player.x += player.vx;
+
+            // Boundary
+            player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+        }
+
+        function spawnRocket() {
+            const side = Math.random() > 0.5 ? 'left' : 'right';
+            const x = side === 'left' ? -20 : canvas.width + 20;
+            const y = Math.random() * (canvas.height * 0.6);
+            const targetX = player.x + (Math.random() - 0.5) * 100;
+            const targetY = canvas.height + 50;
+            const dx = targetX - x;
+            const dy = targetY - y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const speed = 3 + Math.random() * 2;
+            const vx = (dx / dist) * speed;
+            const vy = (dy / dist) * speed;
+            rockets.push(new Rocket(x, y, vx, vy));
+        }
+
+        function updateRockets() {
+            for (let i = rockets.length - 1; i >= 0; i--) {
+                const rocket = rockets[i];
+                rocket.update();
+
+                // Check collision
+                const dx = rocket.x - player.x;
+                const dy = rocket.y - player.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < player.radius + 15) {
+                    endGame();
+                    return;
+                }
+
+                // Check if passed
+                if (rocket.y > canvas.height && !rocket.passed) {
+                    rocket.passed = true;
+                    dodged++;
+                    score += 10;
+                }
+
+                // Remove if off screen
+                if (rocket.y > canvas.height + 100 || rocket.x < -50 || rocket.x > canvas.width + 50) {
+                    rockets.splice(i, 1);
+                }
+            }
+
+            rocketSpawnTimer++;
+            if (rocketSpawnTimer > rocketFrequency) {
+                spawnRocket();
+                rocketSpawnTimer = 0;
+                rocketFrequency = Math.max(40, rocketFrequency - 1);
+            }
+
+            difficultyTimer++;
+            if (difficultyTimer > 300) {
+                difficultyTimer = 0;
+                score += 50;
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = '#001a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Starfield
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            for (let i = 0; i < 50; i++) {
+                const x = (Math.sin(i * 12.9) * 300 + i * 50) % canvas.width;
+                const y = (Math.cos(i * 78.2) * 300 + i * 20) % canvas.height;
+                ctx.fillRect(x, y, 1, 1);
+            }
+
+            // Rockets
+            rockets.forEach(r => r.draw(ctx));
+
+            // Player
+            ctx.save();
+            ctx.fillStyle = '#48ecff';
+            ctx.shadowColor = 'rgba(72, 236, 255, 0.8)';
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#00f5a0';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.restore();
+
+            // Shield effect
+            ctx.strokeStyle = 'rgba(72, 236, 255, 0.2)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius + 10, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function endGame() {
+            gameRunning = false;
+            gameOver = true;
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('rocketDodgeBest', bestScore);
+            }
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('dodged').textContent = dodged;
+            document.getElementById('best').textContent = bestScore;
+        }
+
+        function animate() {
+            if (!gameRunning) return;
+
+            draw();
+
+            if (!gamePaused) {
+                updatePlayer();
+                updateRockets();
+                updateUI();
+            } else {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#48ecff';
+                ctx.font = 'bold 48px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+            }
+
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>
