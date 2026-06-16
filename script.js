@@ -1,14 +1,9 @@
-// Advanced GameVerse Interactivity
-// 3D carousel, mouse tilt, particles, parallax, theme toggle, loading
 
-// Loading Screen
 window.addEventListener('load', () => {
     setTimeout(() => {
         document.getElementById('loading').classList.add('hidden');
     }, 1500);
 });
-
-// Smooth Scroll
 document.querySelectorAll('a[href^=\"#\"]').forEach(anchor => {
     anchor.addEventListener('click', e => {
         const target = anchor.getAttribute('href');
@@ -29,7 +24,6 @@ document.querySelectorAll('a[href^=\"#\"]').forEach(anchor => {
     });
 });
 
-// Mobile Nav Toggle
 const navToggle = document.getElementById('navToggle');
 const navbar = document.querySelector('.navbar');
 navToggle?.addEventListener('click', () => {
